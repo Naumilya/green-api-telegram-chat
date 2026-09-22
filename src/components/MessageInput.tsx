@@ -53,7 +53,22 @@ export function MessageInput({
         aria-label="Отправить сообщение"
         title="Отправить"
       >
-        {isSending ? "…" : "➤"}
+        {isSending ? (
+          <span className="telechat-send-loading" aria-hidden="true">…</span>
+        ) : (
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M4.2 5.2 20 12 4.2 18.8l2-5.4L15 12l-8.8-1.4-2-5.4Z"
+              fill="currentColor"
+            />
+          </svg>
+        )}
       </button>
     </form>
   );
