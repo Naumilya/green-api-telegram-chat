@@ -2,6 +2,8 @@
 
 Минимальный React-клиент для отправки и получения текстовых сообщений в Telegram через GREEN-API.
 
+**Демо:** [naumilya.github.io/green-api-telegram-chat](https://naumilya.github.io/green-api-telegram-chat/)
+
 Проект выполнен как тестовое задание на позицию Frontend React Developer. По условию задания вместо MAX разрешено использовать Telegram. Структура интерфейса чата основана на desktop-messenger референсе из задания: список чатов, шапка текущего диалога, область сообщений и composer.
 
 ## Что реализовано
@@ -21,8 +23,11 @@
 - автоскролл к последнему сообщению;
 - поиск по текущему списку чатов;
 - создание нового чата без перезагрузки страницы;
-- responsive layout;
+- адаптивный интерфейс для desktop, планшетов и телефонов;
+- мобильная навигация с возвратом к созданию нового чата;
 - валидация формы и пользовательские состояния ошибок;
+- безопасные сообщения об ошибках без вывода ответа API и credentials;
+- автоматическое переподключение с увеличиваемой задержкой;
 - credentials не сохраняются в `localStorage`, `sessionStorage` или репозитории.
 
 ## Соответствие тестовому заданию
@@ -53,12 +58,12 @@
 
 ## Локальный запуск
 
-Рекомендуется Node.js 24+.
+Требуется Node.js 24+.
 
 ```bash
 git clone https://github.com/Naumilya/green-api-telegram-chat.git
 cd green-api-telegram-chat
-npm install
+npm ci
 npm run dev
 ```
 
@@ -99,7 +104,7 @@ npm run check
 
 `npm run check` последовательно выполняет lint, tests и production build.
 
-В `.github/workflows/ci.yml` настроен GitHub Actions workflow для push в `main` и pull request.
+В `.github/workflows/ci.yml` настроены проверки для push в `main` и pull request. Workflow `.github/workflows/deploy.yml` после успешной проверки собирает приложение и публикует его в GitHub Pages.
 
 ## Что покрыто тестами
 

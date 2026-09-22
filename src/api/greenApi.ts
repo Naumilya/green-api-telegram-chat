@@ -55,8 +55,18 @@ interface NotificationParams {
 }
 
 interface DeleteNotificationParams
-  extends Omit<NotificationParams, "signal"> {
+  extends NotificationParams {
   receiptId: number;
+}
+
+export class GreenApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "GreenApiError";
+    this.status = status;
+  }
 }
 
 function normalizeApiUrl(apiUrl: string) {
@@ -64,10 +74,22 @@ function normalizeApiUrl(apiUrl: string) {
 }
 
 async function throwResponseError(response: Response): Promise<never> {
-  const responseText = await response.text();
-  const details = responseText ? `: ${responseText}` : "";
+  const messages: Record<number, string> = {
+    400: "GREEN-API отклонил запрос. Проверьте введённые данные.",
+    401: "Неверные idInstance или apiTokenInstance.",
+    403: "У инстанса нет доступа к этому методу.",
+    404: "Метод или инстанс GREEN-API не найден.",
+    429: "Слишком много запросов. Повторите попытку немного позже.",
+    466: "Инстанс временно недоступен. Проверьте его состояние в GREEN-API.",
+  };
 
-  throw new Error(`HTTP ${response.status}${details}`);
+  const message =
+    messages[response.status] ??
+    (response.status >= 500
+      ? "GREEN-API временно недоступен. Повторите попытку позже."
+      : `GREEN-API вернул ошибку ${response.status}.`);
+
+  throw new GreenApiError(response.status, message);
 }
 
 export async function checkAccount({
@@ -151,11 +173,13 @@ export async function deleteNotification({
   idInstance,
   apiTokenInstance,
   receiptId,
+  signal,
 }: DeleteNotificationParams): Promise<void> {
   const response = await fetch(
     `${normalizeApiUrl(apiUrl)}/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
     {
       method: "DELETE",
+      signal,
     },
   );
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   checkAccount,
   deleteNotification,
+  GreenApiError,
   receiveNotification,
   sendMessage,
 } from "./api/greenApi";
@@ -22,11 +23,16 @@ import {
 } from "./utils/validation";
 import "./App.css";
 
-const RETRY_DELAY_MS = 1000;
+const INITIAL_RETRY_DELAY_MS = 1000;
+const MAX_RETRY_DELAY_MS = 15000;
 
 function getErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error && error.message) {
-    return `${fallback} ${error.message}`;
+  if (error instanceof GreenApiError) {
+    return error.message;
+  }
+
+  if (error instanceof TypeError) {
+    return "Не удалось связаться с GREEN-API. Проверьте интернет и API URL.";
   }
 
   return fallback;
@@ -58,6 +64,7 @@ function App() {
     }
 
     let cancelled = false;
+    let retryDelay = INITIAL_RETRY_DELAY_MS;
     const controller = new AbortController();
 
     const pollNotifications = async () => {
@@ -75,6 +82,7 @@ function App() {
           }
 
           setPollingError(null);
+          retryDelay = INITIAL_RETRY_DELAY_MS;
 
           if (!notification) {
             continue;
@@ -100,6 +108,7 @@ function App() {
             idInstance: connection.idInstance.trim(),
             apiTokenInstance: connection.apiTokenInstance.trim(),
             receiptId,
+            signal: controller.signal,
           });
         } catch (error) {
           if (cancelled || isAbortError(error)) {
@@ -107,13 +116,11 @@ function App() {
           }
 
           setPollingError(
-            getErrorMessage(
-              error,
-              "Повторная попытка будет выполнена автоматически.",
-            ),
+            `${getErrorMessage(error, "Не удалось получить новые сообщения.")} Переподключаемся автоматически…`,
           );
 
-          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+          retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY_MS);
         }
       }
     };

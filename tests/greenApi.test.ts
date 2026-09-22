@@ -147,9 +147,9 @@ describe("GREEN-API client", () => {
     assert.equal(method, "DELETE");
   });
 
-  it("includes HTTP status and response body in API errors", async () => {
+  it("returns a safe user-facing message for API errors", async () => {
     globalThis.fetch = async () =>
-      new Response("invalid credentials", { status: 401 });
+      new Response("sensitive upstream details", { status: 401 });
 
     await assert.rejects(
       () =>
@@ -159,7 +159,12 @@ describe("GREEN-API client", () => {
           apiTokenInstance: "bad-token",
           username: "@naumilya",
         }),
-      /HTTP 401: invalid credentials/,
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.equal(error.message, "Неверные idInstance или apiTokenInstance.");
+        assert.doesNotMatch(error.message, /sensitive upstream details/);
+        return true;
+      },
     );
   });
 });

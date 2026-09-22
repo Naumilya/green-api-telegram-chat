@@ -29,13 +29,15 @@
 html,
 body,
 #root {
-  min-width: 320px;
+  width: 100%;
+  min-width: 0;
   min-height: 100%;
   margin: 0;
 }
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 button,
@@ -62,6 +64,7 @@ summary:focus-visible {
 
 .app-root {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #eef7fb;
 }
 
@@ -69,6 +72,7 @@ summary:focus-visible {
 
 .auth-layout {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 52px minmax(430px, 520px) minmax(360px, 1fr);
   background: #f7fbfd;
@@ -78,6 +82,7 @@ summary:focus-visible {
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -115,7 +120,8 @@ summary:focus-visible {
 
 .auth-form-pane {
   min-height: 100vh;
-  padding: 56px 38px 38px;
+  min-height: 100dvh;
+  padding: 40px 38px 32px;
   background: #ffffff;
   box-shadow: 12px 0 30px rgba(30, 61, 82, 0.05);
 }
@@ -149,7 +155,7 @@ summary:focus-visible {
 }
 
 .auth-copy {
-  margin-top: clamp(64px, 9vh, 98px);
+  margin-top: clamp(48px, 6vh, 72px);
 }
 
 .auth-kicker {
@@ -181,12 +187,12 @@ summary:focus-visible {
 
 .connect-form {
   width: min(100%, 430px);
-  margin-top: 34px;
+  margin-top: 26px;
 }
 
 .field {
   position: relative;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .field label {
@@ -351,7 +357,7 @@ summary:focus-visible {
 }
 
 .privacy-note {
-  margin: 19px auto 0;
+  margin: 16px auto 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -365,6 +371,7 @@ summary:focus-visible {
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh;
   min-width: 0;
   overflow: hidden;
   display: flex;
@@ -517,8 +524,9 @@ summary:focus-visible {
 /* Chat screen */
 
 .chat-root {
+  height: 100vh;
   height: 100dvh;
-  min-height: 560px;
+  min-height: 0;
   overflow: hidden;
   background: #ffffff;
 }
@@ -526,6 +534,8 @@ summary:focus-visible {
 .telechat-shell {
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   overflow: hidden;
@@ -636,7 +646,7 @@ summary:focus-visible {
   outline: 0;
   background: transparent;
   color: #536779;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .telechat-search input::placeholder {
@@ -707,7 +717,7 @@ summary:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #111827;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -717,7 +727,7 @@ summary:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #82919f;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .telechat-chat-time {
@@ -725,7 +735,7 @@ summary:focus-visible {
   align-self: start;
   padding-top: 4px;
   color: #9ba8b2;
-  font-size: 9px;
+  font-size: 10px;
   text-align: right;
 }
 
@@ -746,7 +756,7 @@ summary:focus-visible {
   gap: 8px;
   border-top: 1px solid #dfe7ec;
   color: #718899;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .telechat-sidebar-footer svg {
@@ -759,6 +769,11 @@ summary:focus-visible {
   border-radius: 50%;
   background: #4ac77a;
   box-shadow: 0 0 0 4px rgba(74, 199, 122, 0.1);
+}
+
+.telechat-online-dot.reconnecting {
+  background: #e2a634;
+  box-shadow: 0 0 0 4px rgba(226, 166, 52, 0.12);
 }
 
 .telechat-main {
@@ -779,6 +794,22 @@ summary:focus-visible {
   gap: 14px;
   border-bottom: 1px solid #dce8ee;
   background: #ffffff;
+}
+
+.telechat-mobile-back {
+  display: none;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 11px;
+  background: #eef7fb;
+  color: #267fab;
+}
+
+.telechat-mobile-back:hover {
+  background: #e2f2f9;
 }
 
 .telechat-user {
@@ -806,7 +837,7 @@ summary:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #1e2938;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -816,7 +847,7 @@ summary:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #8d9aa6;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .telechat-chat-badge {
@@ -828,7 +859,7 @@ summary:focus-visible {
   border-radius: 999px;
   background: #f4f7f8;
   color: #84939f;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .telechat-chat-badge svg {
@@ -882,11 +913,11 @@ summary:focus-visible {
 
 .telechat-empty strong {
   color: #496272;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .telechat-empty span {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .telechat-message {
@@ -899,7 +930,7 @@ summary:focus-visible {
   gap: 9px;
   border-radius: 13px;
   color: #21313e;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.4;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -926,7 +957,7 @@ summary:focus-visible {
 .telechat-message-meta {
   flex: 0 0 auto;
   color: #789083;
-  font-size: 8px;
+  font-size: 10px;
   white-space: nowrap;
 }
 
@@ -938,7 +969,7 @@ summary:focus-visible {
   margin: 10px 16px 0;
   padding: 9px 11px;
   border-radius: 9px;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -973,6 +1004,8 @@ summary:focus-visible {
   max-height: 110px;
   padding: 13px 16px;
   resize: none;
+  overflow-y: auto;
+  scrollbar-width: none;
   border: 1.5px solid #44aee2;
   border-radius: 15px;
   background: #ffffff;
@@ -980,6 +1013,11 @@ summary:focus-visible {
   outline: none;
   line-height: 1.35;
   box-shadow: 0 0 0 4px rgba(68, 174, 226, 0.08);
+}
+
+.telechat-composer textarea::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .telechat-composer textarea::placeholder {
@@ -1090,11 +1128,11 @@ summary:focus-visible {
   }
 
   .auth-form-pane {
-    padding: 24px 18px 28px;
+    padding: 24px max(18px, env(safe-area-inset-left)) calc(28px + env(safe-area-inset-bottom));
   }
 
   .auth-copy {
-    margin-top: 46px;
+    margin-top: 40px;
   }
 
   .auth-copy h1 {
@@ -1118,8 +1156,12 @@ summary:focus-visible {
   }
 
   .telechat-chat-header {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .telechat-mobile-back {
+    display: grid;
   }
 
   .telechat-messages {
@@ -1131,7 +1173,7 @@ summary:focus-visible {
   }
 
   .telechat-composer {
-    padding: 11px 12px;
+    padding: 11px max(12px, env(safe-area-inset-right)) calc(11px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
     grid-template-columns: minmax(0, 1fr) 44px;
   }
 

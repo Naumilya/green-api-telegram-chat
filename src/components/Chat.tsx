@@ -140,14 +140,29 @@ export function Chat({
             <path d="M8 15.5a6 6 0 0 1 8 0" />
             <path d="M11 18.5a2 2 0 0 1 2 0" />
           </Icon>
-          <span>GREEN-API подключён</span>
-          <span className="telechat-online-dot" aria-hidden="true" />
+          <span>{pollingError ? "Переподключение…" : "GREEN-API подключён"}</span>
+          <span
+            className={`telechat-online-dot${pollingError ? " reconnecting" : ""}`}
+            aria-hidden="true"
+          />
         </footer>
       </aside>
 
       <section className="telechat-main">
         <header className="telechat-chat-header">
           <div className="telechat-user">
+            <button
+              className="telechat-mobile-back"
+              type="button"
+              onClick={onChangeChat}
+              aria-label="Сменить чат"
+              title="Сменить чат"
+            >
+              <Icon size={21}>
+                <path d="m15 18-6-6 6-6" />
+              </Icon>
+            </button>
+
             <span className="telechat-user-avatar">{avatarLabel}</span>
 
             <div className="telechat-user-copy">
