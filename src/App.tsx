@@ -95,6 +95,10 @@ function App() {
                     id: body.idMessage,
                     text,
                     direction: "incoming",
+                    time: new Intl.DateTimeFormat("ru-RU", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(new Date()),
                   },
                 ];
               });
@@ -213,6 +217,10 @@ function App() {
           id: result.idMessage,
           text,
           direction: "outgoing",
+          time: new Intl.DateTimeFormat("ru-RU", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }).format(new Date()),
         },
       ]);
 
