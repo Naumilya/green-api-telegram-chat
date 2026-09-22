@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { Message } from "../types";
 import { MessageInput } from "./MessageInput";
 import { MessageList } from "./MessageList";
@@ -56,9 +56,13 @@ export function Chat({
     ? "@"
     : recipient.replace(/\D/g, "").slice(-2) || "+";
 
+  const [searchQuery, setSearchQuery] = useState("");
   const lastMessage = messages.at(-1);
   const previewText = lastMessage?.text ?? "Сообщений пока нет";
   const previewTime = lastMessage?.time ?? "сейчас";
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const isVisible =
+    !normalizedQuery || recipient.toLowerCase().includes(normalizedQuery);
 
   return (
     <div className="telechat-shell">
@@ -96,8 +100,8 @@ export function Chat({
                 <path d="m20 20-3.2-3.2" />
               </Icon>
               <input
-                value=""
-                readOnly
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Ваши чаты"
                 aria-label="Поиск по чатам"
               />
@@ -114,16 +118,20 @@ export function Chat({
             </button>
           </div>
 
-          <button className="telechat-chat-item active" type="button">
-            <span className="telechat-chat-avatar">{avatarLabel}</span>
+          {isVisible ? (
+            <button className="telechat-chat-item active" type="button">
+              <span className="telechat-chat-avatar">{avatarLabel}</span>
 
-            <span className="telechat-chat-copy">
-              <strong>{recipient}</strong>
-              <span>{previewText}</span>
-            </span>
+              <span className="telechat-chat-copy">
+                <strong>{recipient}</strong>
+                <span>{previewText}</span>
+              </span>
 
-            <span className="telechat-chat-time">{previewTime}</span>
-          </button>
+              <span className="telechat-chat-time">{previewTime}</span>
+            </button>
+          ) : (
+            <p className="telechat-no-results">Чаты не найдены</p>
+          )}
         </div>
 
         <footer className="telechat-sidebar-footer">
