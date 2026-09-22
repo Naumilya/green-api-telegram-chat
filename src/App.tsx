@@ -1,8 +1,19 @@
 import { useEffect, useState } from "react";
-import { checkAccount, deleteNotification, receiveNotification, sendMessage } from "./api/greenApi";
+import {
+  checkAccount,
+  deleteNotification,
+  receiveNotification,
+  sendMessage,
+} from "./api/greenApi";
 import { AuthForm } from "./components/AuthForm";
 import { Chat } from "./components/Chat";
 import type { Message } from "./types";
+import {
+  EMPTY_CONNECTION_FORM,
+  normalizeTelegramUsername,
+  type ConnectionField,
+  type ConnectionFormValues,
+} from "./utils/validation";
 import "./App.css";
 
 const RETRY_DELAY_MS = 1000;
@@ -20,11 +31,11 @@ function isAbortError(error: unknown) {
 }
 
 function App() {
-  const [idInstance, setIdInstance] = useState("");
-  const [apiTokenInstance, setApiTokenInstance] = useState("");
-  const [username, setUsername] = useState("");
-  const [apiUrl, setApiUrl] = useState("");
+  const [connection, setConnection] = useState<ConnectionFormValues>(
+    EMPTY_CONNECTION_FORM,
+  );
   const [chatId, setChatId] = useState("");
+  const [activeUsername, setActiveUsername] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -46,9 +57,9 @@ function App() {
       while (!cancelled) {
         try {
           const notification = await receiveNotification({
-            apiUrl: apiUrl.trim(),
-            idInstance: idInstance.trim(),
-            apiTokenInstance: apiTokenInstance.trim(),
+            apiUrl: connection.apiUrl.trim(),
+            idInstance: connection.idInstance.trim(),
+            apiTokenInstance: connection.apiTokenInstance.trim(),
             signal: controller.signal,
           });
 
@@ -72,17 +83,17 @@ function App() {
             const text = body.messageData.textMessageData?.textMessage;
 
             if (text) {
-              setMessages((prev) => {
-                const alreadyExists = prev.some(
+              setMessages((current) => {
+                const alreadyExists = current.some(
                   (item) => item.id === body.idMessage,
                 );
 
                 if (alreadyExists) {
-                  return prev;
+                  return current;
                 }
 
                 return [
-                  ...prev,
+                  ...current,
                   {
                     id: body.idMessage,
                     text,
@@ -94,9 +105,9 @@ function App() {
           }
 
           await deleteNotification({
-            apiUrl: apiUrl.trim(),
-            idInstance: idInstance.trim(),
-            apiTokenInstance: apiTokenInstance.trim(),
+            apiUrl: connection.apiUrl.trim(),
+            idInstance: connection.idInstance.trim(),
+            apiTokenInstance: connection.apiTokenInstance.trim(),
             receiptId,
           });
         } catch (error) {
@@ -107,7 +118,7 @@ function App() {
           setPollingError(
             getErrorMessage(
               error,
-              "Не удалось получить новые сообщения. Повторяем подключение.",
+              "Повторная попытка будет выполнена автоматически.",
             ),
           );
 
@@ -122,36 +133,39 @@ function App() {
       cancelled = true;
       controller.abort();
     };
-  }, [chatId, apiUrl, idInstance, apiTokenInstance]);
+  }, [
+    chatId,
+    connection.apiUrl,
+    connection.idInstance,
+    connection.apiTokenInstance,
+  ]);
+
+  const handleConnectionChange = (
+    field: ConnectionField,
+    value: string,
+  ) => {
+    setConnection((current) => ({
+      ...current,
+      [field]: value,
+    }));
+    setAuthError(null);
+  };
 
   const handleOpenChat = async () => {
-    const trimmedApiUrl = apiUrl.trim();
-    const trimmedIdInstance = idInstance.trim();
-    const trimmedToken = apiTokenInstance.trim();
-    const trimmedUsername = username.trim();
-
-    if (
-      !trimmedApiUrl ||
-      !trimmedIdInstance ||
-      !trimmedToken ||
-      !trimmedUsername
-    ) {
-      return;
-    }
-
-    const normalizedUsername = trimmedUsername.startsWith("@")
-      ? trimmedUsername
-      : `@${trimmedUsername}`;
+    const apiUrl = connection.apiUrl.trim();
+    const idInstance = connection.idInstance.trim();
+    const apiTokenInstance = connection.apiTokenInstance.trim();
+    const username = normalizeTelegramUsername(connection.username);
 
     setIsConnecting(true);
     setAuthError(null);
 
     try {
       const result = await checkAccount({
-        apiUrl: trimmedApiUrl,
-        idInstance: trimmedIdInstance,
-        apiTokenInstance: trimmedToken,
-        username: normalizedUsername,
+        apiUrl,
+        idInstance,
+        apiTokenInstance,
+        username,
       });
 
       if (!result.exist || !result.chatId) {
@@ -159,12 +173,18 @@ function App() {
         return;
       }
 
-      setUsername(normalizedUsername);
+      setConnection((current) => ({
+        ...current,
+        username,
+      }));
+      setActiveUsername(username);
       setMessages([]);
+      setChatError(null);
+      setPollingError(null);
       setChatId(result.chatId);
     } catch (error) {
       setAuthError(
-        getErrorMessage(error, "Не удалось подключиться к GREEN-API."),
+        getErrorMessage(error, "Проверьте параметры инстанса и попробуйте ещё раз."),
       );
     } finally {
       setIsConnecting(false);
@@ -183,15 +203,15 @@ function App() {
 
     try {
       const result = await sendMessage({
-        apiUrl: apiUrl.trim(),
-        idInstance: idInstance.trim(),
-        apiTokenInstance: apiTokenInstance.trim(),
+        apiUrl: connection.apiUrl.trim(),
+        idInstance: connection.idInstance.trim(),
+        apiTokenInstance: connection.apiTokenInstance.trim(),
         chatId,
         message: text,
       });
 
-      setMessages((prev) => [
-        ...prev,
+      setMessages((current) => [
+        ...current,
         {
           id: result.idMessage,
           text,
@@ -202,7 +222,7 @@ function App() {
       setMessage("");
     } catch (error) {
       setChatError(
-        getErrorMessage(error, "Не удалось отправить сообщение."),
+        getErrorMessage(error, "Проверьте соединение и попробуйте ещё раз."),
       );
     } finally {
       setIsSending(false);
@@ -211,45 +231,56 @@ function App() {
 
   const handleChangeChat = () => {
     setChatId("");
-    setUsername("");
+    setActiveUsername("");
     setMessage("");
     setMessages([]);
     setAuthError(null);
     setChatError(null);
     setPollingError(null);
+    setConnection((current) => ({
+      ...current,
+      username: "",
+    }));
   };
 
   return (
     <main className="page">
-      <section className={chatId ? "chat-card" : "auth-card"}>
-        {!chatId ? (
-          <AuthForm
-            idInstance={idInstance}
-            apiTokenInstance={apiTokenInstance}
-            username={username}
-            apiUrl={apiUrl}
-            isConnecting={isConnecting}
-            error={authError}
-            onIdInstanceChange={setIdInstance}
-            onApiTokenInstanceChange={setApiTokenInstance}
-            onUsernameChange={setUsername}
-            onApiUrlChange={setApiUrl}
-            onSubmit={handleOpenChat}
-          />
-        ) : (
-          <Chat
-            username={username}
-            messages={messages}
-            message={message}
-            isSending={isSending}
-            error={chatError}
-            pollingError={pollingError}
-            onMessageChange={setMessage}
-            onSend={handleSendMessage}
-            onChangeChat={handleChangeChat}
-          />
-        )}
-      </section>
+      <div className="page-shell">
+        <div className="brand-bar">
+          <span className="brand-mark" aria-hidden="true">
+            G
+          </span>
+          <span>GREEN-API</span>
+          <span className="brand-divider" aria-hidden="true">
+            /
+          </span>
+          <span className="brand-product">Telegram Chat</span>
+        </div>
+
+        <section className={chatId ? "chat-card" : "auth-card"}>
+          {!chatId ? (
+            <AuthForm
+              values={connection}
+              isConnecting={isConnecting}
+              serverError={authError}
+              onChange={handleConnectionChange}
+              onSubmit={handleOpenChat}
+            />
+          ) : (
+            <Chat
+              username={activeUsername}
+              messages={messages}
+              message={message}
+              isSending={isSending}
+              error={chatError}
+              pollingError={pollingError}
+              onMessageChange={setMessage}
+              onSend={handleSendMessage}
+              onChangeChat={handleChangeChat}
+            />
+          )}
+        </section>
+      </div>
     </main>
   );
 }
