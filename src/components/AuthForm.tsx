@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import {
   hasConnectionFormErrors,
   validateConnectionForm,
@@ -15,10 +15,34 @@ interface AuthFormProps {
   onSubmit: () => void;
 }
 
+function Icon({
+  children,
+  size = 18,
+}: {
+  children: ReactNode;
+  size?: number;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
 function TelegramMark() {
   return (
     <span className="telegram-mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" role="img">
+      <svg viewBox="0 0 24 24">
         <path d="M20.5 4.2 3.9 10.6c-1.1.4-1.1 1.1-.2 1.4l4.3 1.3 1.6 4.9c.2.6.1.8.8.8.5 0 .8-.2 1-.4l2.1-2 4.4 3.2c.8.4 1.4.2 1.6-.8l2.8-13.2c.3-1.2-.5-1.8-1.8-1.3Z" />
       </svg>
     </span>
@@ -65,10 +89,31 @@ export function AuthForm({
   return (
     <div className="auth-layout">
       <aside className="auth-rail" aria-hidden="true">
-        <span className="rail-brand">✦</span>
-        <span className="rail-item active">▣</span>
-        <span className="rail-item">◷</span>
-        <span className="rail-item">☆</span>
+        <span className="rail-brand">
+          <Icon size={18}>
+            <path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4" />
+          </Icon>
+        </span>
+
+        <span className="rail-item active">
+          <Icon size={17}>
+            <rect x="4" y="5" width="16" height="14" rx="2" />
+            <path d="M8 9h8M8 13h5" />
+          </Icon>
+        </span>
+
+        <span className="rail-item">
+          <Icon size={17}>
+            <circle cx="12" cy="12" r="8" />
+            <path d="M12 8v4l3 2" />
+          </Icon>
+        </span>
+
+        <span className="rail-item">
+          <Icon size={17}>
+            <path d="m12 4 2.5 5 5.5.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.5-.8L12 4Z" />
+          </Icon>
+        </span>
       </aside>
 
       <section className="auth-form-pane">
@@ -79,7 +124,10 @@ export function AuthForm({
 
         <div className="auth-copy">
           <span className="auth-kicker">GREEN-API · TELEGRAM</span>
-          <h1>Все сообщения<br />в одном окне</h1>
+          <h1>
+            Все сообщения
+            <br />в одном окне
+          </h1>
           <p>
             Подключите свой Telegram-инстанс, чтобы отправлять и получать
             текстовые сообщения.
@@ -130,15 +178,29 @@ export function AuthForm({
                     : undefined
                 }
               />
+
               <button
                 className="eye-button"
                 type="button"
                 onClick={() => setShowToken((current) => !current)}
                 aria-label={showToken ? "Скрыть токен" : "Показать токен"}
               >
-                {showToken ? "◉" : "◌"}
+                {showToken ? (
+                  <Icon size={18}>
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                    <path d="M9.9 4.4A10.9 10.9 0 0 1 12 4c5.3 0 9 5 9 8a11.8 11.8 0 0 1-2.1 3.7" />
+                    <path d="M6.2 6.2C4.1 7.7 3 10.1 3 12c0 3 3.7 8 9 8 1.7 0 3.2-.5 4.5-1.2" />
+                  </Icon>
+                ) : (
+                  <Icon size={18}>
+                    <path d="M3 12c0-3 3.7-8 9-8s9 5 9 8-3.7 8-9 8-9-5-9-8Z" />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </Icon>
+                )}
               </button>
             </div>
+
             {errors.apiTokenInstance ? (
               <p className="field-error" id="apiTokenInstance-error">
                 {errors.apiTokenInstance}
@@ -147,7 +209,15 @@ export function AuthForm({
           </div>
 
           <details className="server-settings">
-            <summary>Настройки сервера</summary>
+            <summary>
+              <Icon size={15}>
+                <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+                <circle cx="16" cy="7" r="2" />
+                <circle cx="8" cy="17" r="2" />
+              </Icon>
+              Настройки сервера
+            </summary>
+
             <div className="field server-field">
               <label htmlFor="apiUrl">apiUrl</label>
               <input
@@ -207,13 +277,20 @@ export function AuthForm({
             type="submit"
             disabled={isConnecting}
           >
-            <span aria-hidden="true">◉</span>
+            <Icon size={17}>
+              <path d="M5 12.5a10 10 0 0 1 14 0" />
+              <path d="M8 15.5a6 6 0 0 1 8 0" />
+              <path d="M11 18.5a2 2 0 0 1 2 0" />
+            </Icon>
             {isConnecting ? "Подключаемся..." : "Подключиться"}
           </button>
 
           <p className="privacy-note">
-            <span aria-hidden="true">♢</span>
-            Данные доступа хранятся только до закрытия вкладки
+            <Icon size={14}>
+              <path d="M12 3 5.5 5.5v5.6c0 4.1 2.8 7.8 6.5 9 3.7-1.2 6.5-4.9 6.5-9V5.5L12 3Z" />
+              <path d="m9.5 11.5 1.7 1.7 3.5-3.5" />
+            </Icon>
+            Данные доступа хранятся только до перезагрузки или закрытия вкладки
           </p>
         </form>
       </section>
