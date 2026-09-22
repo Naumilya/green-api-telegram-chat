@@ -6,12 +6,15 @@ export interface CheckAccountResponse {
   fromCache?: boolean;
 }
 
-interface CheckAccountParams {
+type CheckAccountTarget =
+  | { username: string; phoneNumber?: never }
+  | { phoneNumber: number; username?: never };
+
+type CheckAccountParams = {
   apiUrl: string;
   idInstance: string;
   apiTokenInstance: string;
-  username: string;
-}
+} & CheckAccountTarget;
 
 export interface SendMessageResponse {
   idMessage: string;
@@ -71,7 +74,7 @@ export async function checkAccount({
   apiUrl,
   idInstance,
   apiTokenInstance,
-  username,
+  ...target
 }: CheckAccountParams): Promise<CheckAccountResponse> {
   const response = await fetch(
     `${normalizeApiUrl(apiUrl)}/waInstance${idInstance}/checkAccount/${apiTokenInstance}`,
@@ -80,7 +83,7 @@ export async function checkAccount({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username }),
+      body: JSON.stringify(target),
     },
   );
 
