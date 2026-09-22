@@ -15,6 +15,16 @@ interface AuthFormProps {
   onSubmit: () => void;
 }
 
+function TelegramMark() {
+  return (
+    <span className="telegram-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img">
+        <path d="M20.5 4.2 3.9 10.6c-1.1.4-1.1 1.1-.2 1.4l4.3 1.3 1.6 4.9c.2.6.1.8.8.8.5 0 .8-.2 1-.4l2.1-2 4.4 3.2c.8.4 1.4.2 1.6-.8l2.8-13.2c.3-1.2-.5-1.8-1.8-1.3Z" />
+      </svg>
+    </span>
+  );
+}
+
 export function AuthForm({
   values,
   isConnecting,
@@ -53,223 +63,190 @@ export function AuthForm({
   };
 
   return (
-    <>
-      <div className="auth-header">
-        <span className="logo" aria-hidden="true">
-          G
-        </span>
+    <div className="auth-layout">
+      <aside className="auth-rail" aria-hidden="true">
+        <span className="rail-brand">✦</span>
+        <span className="rail-item active">▣</span>
+        <span className="rail-item">◷</span>
+        <span className="rail-item">☆</span>
+      </aside>
 
-        <div>
-          <span className="eyebrow">Тестовое задание</span>
-          <h1>GREEN-API Telegram Chat</h1>
-          <p>Подключите свой Telegram-инстанс и откройте диалог по username.</p>
+      <section className="auth-form-pane">
+        <div className="telechat-brand">
+          <TelegramMark />
+          <span>Telechat</span>
         </div>
-      </div>
 
-      <div className="secure-note">
-        <span className="secure-note-icon" aria-hidden="true">
-          ✓
-        </span>
-        <span>
-          Данные подключения хранятся только в памяти браузера и очищаются
-          после перезагрузки страницы.
-        </span>
-      </div>
-
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
-        <fieldset className="form-section">
-          <legend>
-            <span className="section-number">1</span>
-            Данные GREEN-API
-          </legend>
-
-          <p className="section-description">
-            Скопируйте параметры из настроек вашего Telegram-инстанса.
+        <div className="auth-copy">
+          <span className="auth-kicker">GREEN-API · TELEGRAM</span>
+          <h1>Все сообщения<br />в одном окне</h1>
+          <p>
+            Подключите свой Telegram-инстанс, чтобы отправлять и получать
+            текстовые сообщения.
           </p>
+        </div>
 
+        <form className="connect-form" onSubmit={handleSubmit} noValidate>
           <div className="field">
-            <div className="field-heading">
-              <label htmlFor="apiUrl">API URL</label>
-              <span className="required-label">обязательно</span>
-            </div>
-
+            <label htmlFor="idInstance">idInstance</label>
             <input
-              type="url"
-              id="apiUrl"
-              value={values.apiUrl}
-              onChange={(event) => updateField("apiUrl", event.target.value)}
-              placeholder="https://xxxx.api.green-api.com"
+              id="idInstance"
+              type="text"
+              inputMode="numeric"
+              value={values.idInstance}
+              onChange={(event) =>
+                updateField("idInstance", event.target.value)
+              }
+              placeholder="4100123456789"
               autoComplete="off"
-              aria-invalid={Boolean(errors.apiUrl)}
+              aria-invalid={Boolean(errors.idInstance)}
               aria-describedby={
-                errors.apiUrl ? "apiUrl-error" : "apiUrl-hint"
+                errors.idInstance ? "idInstance-error" : undefined
               }
             />
-
-            {errors.apiUrl ? (
-              <p className="field-error" id="apiUrl-error">
-                {errors.apiUrl}
+            {errors.idInstance ? (
+              <p className="field-error" id="idInstance-error">
+                {errors.idInstance}
               </p>
-            ) : (
-              <p className="field-hint" id="apiUrl-hint">
-                Базовый URL API вашего инстанса.
-              </p>
-            )}
+            ) : null}
           </div>
-
-          <div className="form-row">
-            <div className="field">
-              <div className="field-heading">
-                <label htmlFor="idInstance">ID Instance</label>
-                <span className="required-label">обязательно</span>
-              </div>
-
-              <input
-                type="text"
-                inputMode="numeric"
-                id="idInstance"
-                value={values.idInstance}
-                onChange={(event) =>
-                  updateField("idInstance", event.target.value)
-                }
-                placeholder="Например, 1234567890"
-                autoComplete="off"
-                aria-invalid={Boolean(errors.idInstance)}
-                aria-describedby={
-                  errors.idInstance
-                    ? "idInstance-error"
-                    : "idInstance-hint"
-                }
-              />
-
-              {errors.idInstance ? (
-                <p className="field-error" id="idInstance-error">
-                  {errors.idInstance}
-                </p>
-              ) : (
-                <p className="field-hint" id="idInstance-hint">
-                  Числовой идентификатор инстанса.
-                </p>
-              )}
-            </div>
-
-            <div className="field">
-              <div className="field-heading">
-                <label htmlFor="apiTokenInstance">API Token Instance</label>
-                <span className="required-label">обязательно</span>
-              </div>
-
-              <div className="password-field">
-                <input
-                  type={showToken ? "text" : "password"}
-                  id="apiTokenInstance"
-                  value={values.apiTokenInstance}
-                  onChange={(event) =>
-                    updateField("apiTokenInstance", event.target.value)
-                  }
-                  placeholder="Введите токен"
-                  autoComplete="off"
-                  aria-invalid={Boolean(errors.apiTokenInstance)}
-                  aria-describedby={
-                    errors.apiTokenInstance
-                      ? "apiTokenInstance-error"
-                      : "apiTokenInstance-hint"
-                  }
-                />
-
-                <button
-                  className="token-toggle"
-                  type="button"
-                  onClick={() => setShowToken((current) => !current)}
-                  aria-label={
-                    showToken ? "Скрыть API Token Instance" : "Показать API Token Instance"
-                  }
-                >
-                  {showToken ? "Скрыть" : "Показать"}
-                </button>
-              </div>
-
-              {errors.apiTokenInstance ? (
-                <p className="field-error" id="apiTokenInstance-error">
-                  {errors.apiTokenInstance}
-                </p>
-              ) : (
-                <p className="field-hint" id="apiTokenInstance-hint">
-                  Токен не сохраняется после обновления страницы.
-                </p>
-              )}
-            </div>
-          </div>
-        </fieldset>
-
-        <fieldset className="form-section recipient-section">
-          <legend>
-            <span className="section-number">2</span>
-            Получатель
-          </legend>
-
-          <p className="section-description">
-            Укажите Telegram username пользователя, которому хотите написать.
-          </p>
 
           <div className="field">
-            <div className="field-heading">
-              <label htmlFor="username">Telegram username</label>
-              <span className="required-label">обязательно</span>
-            </div>
-
-            <div className="username-field">
-              <span className="username-prefix" aria-hidden="true">
-                @
-              </span>
+            <label htmlFor="apiTokenInstance">apiTokenInstance</label>
+            <div className="token-field">
               <input
-                type="text"
-                id="username"
-                value={values.username.replace(/^@/, "")}
-                onChange={(event) => updateField("username", event.target.value)}
-                placeholder="username"
+                id="apiTokenInstance"
+                type={showToken ? "text" : "password"}
+                value={values.apiTokenInstance}
+                onChange={(event) =>
+                  updateField("apiTokenInstance", event.target.value)
+                }
+                placeholder="Введите токен"
                 autoComplete="off"
-                spellCheck={false}
-                aria-invalid={Boolean(errors.username)}
+                aria-invalid={Boolean(errors.apiTokenInstance)}
                 aria-describedby={
-                  errors.username ? "username-error" : "username-hint"
+                  errors.apiTokenInstance
+                    ? "apiTokenInstance-error"
+                    : undefined
                 }
               />
+              <button
+                className="eye-button"
+                type="button"
+                onClick={() => setShowToken((current) => !current)}
+                aria-label={showToken ? "Скрыть токен" : "Показать токен"}
+              >
+                {showToken ? "◉" : "◌"}
+              </button>
             </div>
+            {errors.apiTokenInstance ? (
+              <p className="field-error" id="apiTokenInstance-error">
+                {errors.apiTokenInstance}
+              </p>
+            ) : null}
+          </div>
 
-            {errors.username ? (
-              <p className="field-error" id="username-error">
-                {errors.username}
+          <details className="server-settings">
+            <summary>Настройки сервера</summary>
+            <div className="field server-field">
+              <label htmlFor="apiUrl">apiUrl</label>
+              <input
+                id="apiUrl"
+                type="url"
+                value={values.apiUrl}
+                onChange={(event) => updateField("apiUrl", event.target.value)}
+                placeholder="https://api.green-api.com"
+                autoComplete="off"
+                aria-invalid={Boolean(errors.apiUrl)}
+                aria-describedby={errors.apiUrl ? "apiUrl-error" : undefined}
+              />
+              {errors.apiUrl ? (
+                <p className="field-error" id="apiUrl-error">
+                  {errors.apiUrl}
+                </p>
+              ) : null}
+            </div>
+          </details>
+
+          <div className="field recipient-field">
+            <label htmlFor="recipient">Получатель</label>
+            <input
+              id="recipient"
+              type="text"
+              value={values.recipient}
+              onChange={(event) =>
+                updateField("recipient", event.target.value)
+              }
+              placeholder="+79991234567 или @username"
+              autoComplete="off"
+              spellCheck={false}
+              aria-invalid={Boolean(errors.recipient)}
+              aria-describedby={
+                errors.recipient ? "recipient-error" : "recipient-hint"
+              }
+            />
+            {errors.recipient ? (
+              <p className="field-error" id="recipient-error">
+                {errors.recipient}
               </p>
             ) : (
-              <p className="field-hint" id="username-hint">
-                Можно вводить с @ или без него.
+              <p className="field-hint" id="recipient-hint">
+                Номер телефона в международном формате или Telegram username.
               </p>
             )}
           </div>
-        </fieldset>
 
-        {serverError ? (
-          <div className="status-error" role="alert">
-            <strong>Не удалось открыть чат.</strong>
-            <span>{serverError}</span>
+          {serverError ? (
+            <div className="status-error" role="alert">
+              {serverError}
+            </div>
+          ) : null}
+
+          <button
+            className="connect-button"
+            type="submit"
+            disabled={isConnecting}
+          >
+            <span aria-hidden="true">◉</span>
+            {isConnecting ? "Подключаемся..." : "Подключиться"}
+          </button>
+
+          <p className="privacy-note">
+            <span aria-hidden="true">♢</span>
+            Данные доступа хранятся только до закрытия вкладки
+          </p>
+        </form>
+      </section>
+
+      <aside className="auth-preview" aria-label="Пример интерфейса чата">
+        <div className="preview-glow preview-glow-one" />
+        <div className="preview-glow preview-glow-two" />
+
+        <div className="phone-preview">
+          <div className="preview-header">
+            <span className="preview-avatar">АП</span>
+            <div>
+              <strong>Алексей Петров</strong>
+              <span>в сети</span>
+            </div>
           </div>
-        ) : null}
 
-        <button
-          className="primary-button auth-submit"
-          type="submit"
-          disabled={isConnecting}
-        >
-          <span>{isConnecting ? "Подключаемся..." : "Открыть чат"}</span>
-          {!isConnecting ? <span aria-hidden="true">→</span> : null}
-        </button>
+          <div className="preview-messages">
+            <div className="preview-message incoming">
+              Привет! Проект уже готов?
+            </div>
+            <div className="preview-message outgoing">
+              Да, отправляю ссылку ✨
+              <small>12:41 ✓</small>
+            </div>
+          </div>
+        </div>
 
-        <p className="form-footer">
-          Нужные значения находятся в личном кабинете GREEN-API в настройках
-          Telegram-инстанса.
-        </p>
-      </form>
-    </>
+        <div className="preview-badges">
+          <span>✓ Только текст</span>
+          <span>✓ Ответы в реальном времени</span>
+        </div>
+      </aside>
+    </div>
   );
 }
