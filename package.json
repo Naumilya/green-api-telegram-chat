@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "node --test tests/validation.test.ts tests/greenApi.test.ts",
-    "test:coverage": "node --test --experimental-test-coverage tests/validation.test.ts tests/greenApi.test.ts",
+    "test": "node --test tests/validation.test.ts tests/greenApi.test.ts tests/messages.test.ts",
+    "test:coverage": "node --test --experimental-test-coverage tests/validation.test.ts tests/greenApi.test.ts tests/messages.test.ts",
     "check": "npm run lint && npm test && npm run build",
     "preview": "vite preview"
   },
