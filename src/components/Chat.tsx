@@ -26,41 +26,89 @@ export function Chat({
   onChangeChat,
 }: ChatProps) {
   const avatarLetter =
-    recipient.replace(/^[@+]/, "").charAt(0).toUpperCase() || "T";
+    recipient.replace(/^[@+]/, "").charAt(0).toUpperCase() || "@";
 
   return (
-    <div className="max-shell">
-      <aside className="max-rail" aria-hidden="true">
-        <span className="max-rail-logo">T</span>
-        <span className="max-rail-item active">●</span>
-        <span className="max-rail-item">■</span>
-        <span className="max-rail-item">◷</span>
-        <span className="max-rail-item">☆</span>
-      </aside>
-
-      <section className="max-chat">
-        <header className="chat-header">
-          <div className="chat-user">
-            <span className="chat-avatar">{avatarLetter}</span>
-            <div>
-              <strong>{recipient}</strong>
-              <span className="connection-status">
-                Telegram через GREEN-API
-              </span>
-            </div>
+    <div className="telechat-shell">
+      <aside className="telechat-sidebar">
+        <header className="telechat-sidebar-header">
+          <div className="telechat-logo">
+            <span className="telechat-logo-mark">➤</span>
+            <strong>Telechat</strong>
           </div>
 
           <button
-            className="change-chat-button"
+            className="telechat-logout"
             type="button"
             onClick={onChangeChat}
+            aria-label="Сменить чат"
+            title="Сменить чат"
           >
-            Сменить чат
+            ↪
           </button>
         </header>
 
+        <div className="telechat-sidebar-body">
+          <div className="telechat-search-row">
+            <div className="telechat-search">
+              <span aria-hidden="true">⌕</span>
+              <input
+                value=""
+                readOnly
+                placeholder="Ваши чаты"
+                aria-label="Поиск по чатам"
+              />
+            </div>
+
+            <button
+              className="telechat-new-chat"
+              type="button"
+              onClick={onChangeChat}
+              aria-label="Новый чат"
+              title="Новый чат"
+            >
+              +
+            </button>
+          </div>
+
+          <button className="telechat-chat-item active" type="button">
+            <span className="telechat-chat-avatar">{avatarLetter}</span>
+
+            <span className="telechat-chat-copy">
+              <strong>{recipient}</strong>
+              <span>можешь прислать текстом</span>
+            </span>
+
+            <span className="telechat-chat-time">сейчас</span>
+          </button>
+        </div>
+
+        <footer className="telechat-sidebar-footer">
+          <span className="telechat-wifi" aria-hidden="true">⌁</span>
+          <span>GREEN-API подключён</span>
+          <span className="telechat-online-dot" aria-hidden="true" />
+        </footer>
+      </aside>
+
+      <section className="telechat-main">
+        <header className="telechat-chat-header">
+          <div className="telechat-user">
+            <span className="telechat-user-avatar">{avatarLetter}</span>
+
+            <div className="telechat-user-copy">
+              <strong>{recipient}</strong>
+              <span>Telegram</span>
+            </div>
+          </div>
+
+          <span className="telechat-chat-badge">
+            <span aria-hidden="true">♢</span>
+            Текстовый чат
+          </span>
+        </header>
+
         {pollingError ? (
-          <div className="status-warning" role="status">
+          <div className="telechat-status warning" role="status">
             {pollingError}
           </div>
         ) : null}
@@ -68,7 +116,7 @@ export function Chat({
         <MessageList messages={messages} />
 
         {error ? (
-          <div className="status-error chat-error" role="alert">
+          <div className="telechat-status error" role="alert">
             {error}
           </div>
         ) : null}
