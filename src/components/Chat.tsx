@@ -3,7 +3,7 @@ import { MessageInput } from "./MessageInput";
 import { MessageList } from "./MessageList";
 
 interface ChatProps {
-  username: string;
+  recipient: string;
   messages: Message[];
   message: string;
   isSending: boolean;
@@ -15,7 +15,7 @@ interface ChatProps {
 }
 
 export function Chat({
-  username,
+  recipient,
   messages,
   message,
   isSending,
@@ -25,56 +25,61 @@ export function Chat({
   onSend,
   onChangeChat,
 }: ChatProps) {
-  const avatarLetter = username.replace(/^@/, "").charAt(0).toUpperCase() || "T";
+  const avatarLetter =
+    recipient.replace(/^[@+]/, "").charAt(0).toUpperCase() || "T";
 
   return (
-    <div className="chat">
-      <div className="chat-header">
-        <div className="chat-user">
-          <span className="chat-avatar" aria-hidden="true">
-            {avatarLetter}
-          </span>
+    <div className="max-shell">
+      <aside className="max-rail" aria-hidden="true">
+        <span className="max-rail-logo">T</span>
+        <span className="max-rail-item active">●</span>
+        <span className="max-rail-item">■</span>
+        <span className="max-rail-item">◷</span>
+        <span className="max-rail-item">☆</span>
+      </aside>
 
-          <div className="chat-user-copy">
-            <strong>{username}</strong>
-            <span className="connection-status">
-              <span className="status-dot" aria-hidden="true" />
-              GREEN-API подключён
-            </span>
+      <section className="max-chat">
+        <header className="chat-header">
+          <div className="chat-user">
+            <span className="chat-avatar">{avatarLetter}</span>
+            <div>
+              <strong>{recipient}</strong>
+              <span className="connection-status">
+                Telegram через GREEN-API
+              </span>
+            </div>
           </div>
-        </div>
 
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={onChangeChat}
-        >
-          Сменить чат
-        </button>
-      </div>
+          <button
+            className="change-chat-button"
+            type="button"
+            onClick={onChangeChat}
+          >
+            Сменить чат
+          </button>
+        </header>
 
-      {pollingError ? (
-        <div className="status-warning" role="status">
-          <strong>Получение сообщений временно недоступно.</strong>
-          <span>{pollingError}</span>
-        </div>
-      ) : null}
+        {pollingError ? (
+          <div className="status-warning" role="status">
+            {pollingError}
+          </div>
+        ) : null}
 
-      <MessageList messages={messages} />
+        <MessageList messages={messages} />
 
-      {error ? (
-        <div className="status-error chat-error" role="alert">
-          <strong>Сообщение не отправлено.</strong>
-          <span>{error}</span>
-        </div>
-      ) : null}
+        {error ? (
+          <div className="status-error chat-error" role="alert">
+            {error}
+          </div>
+        ) : null}
 
-      <MessageInput
-        value={message}
-        isSending={isSending}
-        onChange={onMessageChange}
-        onSubmit={onSend}
-      />
+        <MessageInput
+          value={message}
+          isSending={isSending}
+          onChange={onMessageChange}
+          onSubmit={onSend}
+        />
+      </section>
     </div>
   );
 }
