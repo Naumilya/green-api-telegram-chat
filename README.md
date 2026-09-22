@@ -1,24 +1,44 @@
-# GREEN-API Telegram Chat
+# Telechat · GREEN-API
 
-Минимальный React-клиент для обмена текстовыми сообщениями в Telegram через GREEN-API.
+Минимальный React-клиент для отправки и получения текстовых сообщений в Telegram через GREEN-API.
 
-Проект выполнен как тестовое задание на позицию Frontend React Developer. Внутри используется Telegram API GREEN-API, а экран чата оформлен в тёмной стилистике, близкой к референсу MAX из задания.
+Проект выполнен как тестовое задание на позицию Frontend React Developer. По условию задания вместо MAX разрешено использовать Telegram. Структура интерфейса чата основана на desktop-messenger референсе из задания: список чатов, шапка текущего диалога, область сообщений и composer.
 
-## Возможности
+## Что реализовано
 
-- подключение по `apiUrl`, `idInstance` и `apiTokenInstance`;
-- поиск получателя по номеру телефона или `@username`;
-- отправка текстовых сообщений через `SendMessage`;
-- получение входящих сообщений через `ReceiveNotification`;
-- подтверждение обработки уведомлений через `DeleteNotification`;
-- long polling с отменой запроса при смене чата;
-- валидация формы и пользовательские сообщения об ошибках;
-- автоскролл к новым сообщениям;
-- отправка по Enter и перенос строки по Shift+Enter;
-- лимит сообщения 4096 символов;
-- возможность сменить чат без перезагрузки;
-- адаптивная вёрстка;
-- credentials не сохраняются в `localStorage`.
+- ввод `idInstance`, `apiTokenInstance` и `apiUrl`;
+- создание чата по номеру телефона в международном формате;
+- дополнительная поддержка `@username`;
+- получение `chatId` через `CheckAccount`;
+- отправка только текстовых сообщений через `SendMessage`;
+- получение входящих уведомлений через `ReceiveNotification`;
+- подтверждение обработки через `DeleteNotification`;
+- long polling с отменой активного запроса при выходе из чата;
+- фильтрация входящих сообщений по активному `chatId`;
+- защита UI от дублирования одного и того же `idMessage`;
+- отправка сообщения по Enter и перенос строки по Shift+Enter;
+- лимит текста 4096 символов;
+- автоскролл к последнему сообщению;
+- поиск по текущему списку чатов;
+- создание нового чата без перезагрузки страницы;
+- responsive layout;
+- валидация формы и пользовательские состояния ошибок;
+- credentials не сохраняются в `localStorage`, `sessionStorage` или репозитории.
+
+## Соответствие тестовому заданию
+
+| Требование | Реализация |
+| --- | --- |
+| React | React + TypeScript |
+| GREEN-API | Отдельный API-модуль `src/api/greenApi.ts` |
+| Только текстовые сообщения | Да |
+| Отправка `SendMessage` | Да |
+| Получение через HTTP API | `ReceiveNotification` + `DeleteNotification` |
+| Ввод `idInstance` / `apiTokenInstance` | Да |
+| Новый чат по номеру телефона | Да |
+| Ответ собеседника отображается в чате | Да, через long polling |
+| Минимальный набор функций | Один активный диалог, текстовые сообщения, без медиа и истории |
+| Визуальный прототип мессенджера | Sidebar + chat header + message area + composer |
 
 ## Стек
 
@@ -29,8 +49,9 @@
 - Oxlint
 - Node.js Test Runner
 - GREEN-API Telegram HTTP API
+- GitHub Actions
 
-## Запуск локально
+## Локальный запуск
 
 Рекомендуется Node.js 24+.
 
@@ -41,6 +62,8 @@ npm install
 npm run dev
 ```
 
+После запуска Vite выведет локальный адрес проекта.
+
 Production-сборка:
 
 ```bash
@@ -50,16 +73,16 @@ npm run preview
 
 ## Проверки
 
+Линтер:
+
 ```bash
 npm run lint
-npm test
-npm run build
 ```
 
-Полная проверка одной командой:
+Тесты:
 
 ```bash
-npm run check
+npm test
 ```
 
 Тесты с coverage:
@@ -68,35 +91,48 @@ npm run check
 npm run test:coverage
 ```
 
-GitHub Actions автоматически запускает lint, tests и production build для push в `main` и pull request.
+Полная локальная проверка:
+
+```bash
+npm run check
+```
+
+`npm run check` последовательно выполняет lint, tests и production build.
+
+В `.github/workflows/ci.yml` настроен GitHub Actions workflow для push в `main` и pull request.
 
 ## Что покрыто тестами
 
-Проверяются:
+Проверяется:
 
 - нормализация Telegram username;
-- распознавание username и номера телефона;
-- очистка форматированного номера телефона;
-- валидация API URL;
+- определение получателя как номера телефона или username;
+- очистка форматированного номера;
+- валидация `apiUrl`;
 - валидация `idInstance`;
 - обязательность `apiTokenInstance`;
-- формирование payload `CheckAccount` для username;
-- формирование payload `CheckAccount` для номера телефона;
-- тело запроса `SendMessage`;
-- пустой ответ `ReceiveNotification`;
+- payload `CheckAccount` для username;
+- payload `CheckAccount` для номера телефона;
+- payload `SendMessage`;
+- пустая очередь `ReceiveNotification`;
 - `DeleteNotification`;
-- обработка HTTP-ошибок.
+- HTTP-ошибки GREEN-API;
+- отбор только текстовых входящих сообщений текущего чата;
+- игнорирование сообщений другого чата;
+- игнорирование нетекстовых webhook;
+- дедупликация по `idMessage`;
+- форматирование времени сообщения.
 
 ## Настройка GREEN-API
 
-Для работы нужен Telegram-инстанс GREEN-API.
+Для работы нужен авторизованный Telegram-инстанс GREEN-API.
 
-В форме указываются:
+В форме приложения указываются:
 
 - **idInstance**;
 - **apiTokenInstance**;
 - **apiUrl**;
-- **получатель** — номер телефона в международном формате или Telegram username.
+- **получатель** — номер телефона или Telegram username.
 
 Примеры:
 
@@ -105,24 +141,26 @@ GitHub Actions автоматически запускает lint, tests и prod
 @username
 ```
 
-Для получения сообщений через HTTP API у инстанса должен быть настроен режим получения входящих уведомлений через HTTP API.
+Для HTTP API получения уведомлений у инстанса должен быть пустой `webhookUrl`, а `incomingWebhook` должен быть включён.
 
-Документация:
+Документация GREEN-API:
 
 - [CheckAccount](https://green-api.com/telegram/docs/api/service/CheckAccount/)
 - [SendMessage](https://green-api.com/telegram/docs/api/sending/SendMessage/)
+- [HTTP API](https://green-api.com/telegram/docs/api/receiving/technology-http-api/)
 - [ReceiveNotification](https://green-api.com/telegram/docs/api/receiving/technology-http-api/ReceiveNotification/)
 - [DeleteNotification](https://green-api.com/telegram/docs/api/receiving/technology-http-api/DeleteNotification/)
 
-## Сценарий
+## Сценарий использования
 
-1. Пользователь вводит параметры GREEN-API.
-2. Вводит номер телефона получателя или `@username`.
-3. Приложение вызывает `CheckAccount` и получает `chatId`.
-4. Пользователь отправляет текст через `SendMessage`.
-5. Входящие уведомления читаются через `ReceiveNotification`.
-6. После обработки уведомление удаляется через `DeleteNotification`.
-7. Ответ собеседника появляется в чате.
+1. Создать и авторизовать Telegram-инстанс GREEN-API.
+2. Ввести параметры инстанса.
+3. Указать номер телефона получателя или `@username`.
+4. Нажать **«Подключиться»**.
+5. Приложение вызывает `CheckAccount` и получает `chatId`.
+6. Написать и отправить текстовое сообщение.
+7. Собеседник отвечает в Telegram.
+8. Ответ появляется в Telechat после получения уведомления через HTTP API.
 
 ## Структура
 
@@ -136,6 +174,7 @@ src/
 │   ├── MessageInput.tsx
 │   └── MessageList.tsx
 ├── utils/
+│   ├── messages.ts
 │   └── validation.ts
 ├── App.tsx
 ├── App.css
@@ -144,19 +183,22 @@ src/
 
 tests/
 ├── greenApi.test.ts
+├── messages.test.ts
 └── validation.test.ts
 ```
 
 ## Ограничения
 
+Это намеренный MVP в рамках тестового задания:
+
 - один активный чат;
-- только текстовые сообщения;
-- история переписки с сервера не загружается;
-- credentials очищаются после перезагрузки страницы;
-- максимальная длина сообщения — 4096 символов.
+- только текст;
+- история сообщений не загружается после перезагрузки;
+- медиа, реакции, группы и вложения не реализованы;
+- credentials живут только в состоянии React до перезагрузки страницы.
 
 ## Безопасность
 
 Не добавляйте реальные `apiTokenInstance` в исходный код, GitHub, публичные переменные окружения или скриншоты.
 
-Данные подключения в приложении хранятся только в состоянии React до перезагрузки страницы.
+Все данные подключения вводятся пользователем в браузере и не сохраняются приложением.
