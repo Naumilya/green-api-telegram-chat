@@ -13,9 +13,15 @@ export function MessageList({ messages }: MessageListProps) {
   }, [messages]);
 
   return (
-    <div className="messages" aria-live="polite">
+    <div className="messages" aria-live="polite" aria-label="Сообщения">
       {messages.length === 0 ? (
-        <p className="empty-messages">Сообщений пока нет</p>
+        <div className="empty-messages">
+          <span className="empty-messages-icon" aria-hidden="true">
+            ↗
+          </span>
+          <strong>Чат открыт</strong>
+          <span>Отправьте первое текстовое сообщение.</span>
+        </div>
       ) : (
         messages.map((item) => (
           <div key={item.id} className={`message ${item.direction}`}>
