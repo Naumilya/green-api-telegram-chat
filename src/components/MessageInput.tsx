@@ -1,4 +1,9 @@
-import type { FormEvent } from "react";
+import type {
+  FormEvent,
+  KeyboardEvent,
+} from "react";
+
+const MAX_MESSAGE_LENGTH = 4096;
 
 interface MessageInputProps {
   value: string;
@@ -18,16 +23,40 @@ export function MessageInput({
     onSubmit();
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.nativeEvent.isComposing
+    ) {
+      event.preventDefault();
+
+      if (value.trim() && !isSending) {
+        onSubmit();
+      }
+    }
+  };
+
   return (
     <form className="message-form" onSubmit={handleSubmit}>
-      <textarea
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="Сообщение"
-        rows={1}
-        maxLength={4096}
-        aria-label="Сообщение"
-      />
+      <div className="composer">
+        <textarea
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Напишите сообщение..."
+          rows={1}
+          maxLength={MAX_MESSAGE_LENGTH}
+          aria-label="Сообщение"
+        />
+
+        <div className="composer-meta">
+          <span>Enter — отправить · Shift+Enter — новая строка</span>
+          <span>
+            {value.length} / {MAX_MESSAGE_LENGTH}
+          </span>
+        </div>
+      </div>
 
       <button
         className="primary-button send-button"
