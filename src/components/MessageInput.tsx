@@ -1,7 +1,4 @@
-import type {
-  FormEvent,
-  KeyboardEvent,
-} from "react";
+import type { FormEvent, KeyboardEvent } from "react";
 
 const MAX_MESSAGE_LENGTH = 4096;
 
@@ -38,32 +35,25 @@ export function MessageInput({
   };
 
   return (
-    <form className="message-form" onSubmit={handleSubmit}>
-      <div className="composer">
-        <textarea
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Напишите сообщение..."
-          rows={1}
-          maxLength={MAX_MESSAGE_LENGTH}
-          aria-label="Сообщение"
-        />
-
-        <div className="composer-meta">
-          <span>Enter — отправить · Shift+Enter — новая строка</span>
-          <span>
-            {value.length} / {MAX_MESSAGE_LENGTH}
-          </span>
-        </div>
-      </div>
+    <form className="telechat-composer" onSubmit={handleSubmit}>
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Напишите сообщение..."
+        rows={1}
+        maxLength={MAX_MESSAGE_LENGTH}
+        aria-label="Сообщение"
+      />
 
       <button
-        className="primary-button send-button"
+        className="telechat-send"
         type="submit"
         disabled={isSending || !value.trim()}
+        aria-label="Отправить сообщение"
+        title="Отправить"
       >
-        {isSending ? "Отправка..." : "Отправить"}
+        {isSending ? "…" : "➤"}
       </button>
     </form>
   );
