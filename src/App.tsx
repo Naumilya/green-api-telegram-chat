@@ -1,17 +1,23 @@
-import { useEffect, useState, type SubmitEvent } from "react";
-import {
-  checkAccount,
-  deleteNotification,
-  receiveNotification,
-  sendMessage,
-} from "./api/greenApi";
+import { useEffect, useState } from "react";
+import { checkAccount, deleteNotification, receiveNotification, sendMessage } from "./api/greenApi";
+import { AuthForm } from "./components/AuthForm";
+import { Chat } from "./components/Chat";
+import type { Message } from "./types";
 import "./App.css";
 
-type Message = {
-  id: string;
-  text: string;
-  direction: "incoming" | "outgoing";
-};
+const RETRY_DELAY_MS = 1000;
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) {
+    return `${fallback} ${error.message}`;
+  }
+
+  return fallback;
+}
+
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError";
+}
 
 function App() {
   const [idInstance, setIdInstance] = useState("");
@@ -22,12 +28,19 @@ function App() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [pollingError, setPollingError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!chatId) {
       return;
     }
 
     let cancelled = false;
+    const controller = new AbortController();
 
     const pollNotifications = async () => {
       while (!cancelled) {
@@ -36,17 +49,18 @@ function App() {
             apiUrl: apiUrl.trim(),
             idInstance: idInstance.trim(),
             apiTokenInstance: apiTokenInstance.trim(),
+            signal: controller.signal,
           });
 
           if (cancelled) {
             return;
           }
 
+          setPollingError(null);
+
           if (!notification) {
             continue;
           }
-
-          console.log("Уведомление:", notification);
 
           const { receiptId, body } = notification;
 
@@ -86,58 +100,88 @@ function App() {
             receiptId,
           });
         } catch (error) {
-          console.error("Ошибка получения сообщений:", error);
+          if (cancelled || isAbortError(error)) {
+            return;
+          }
 
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setPollingError(
+            getErrorMessage(
+              error,
+              "Не удалось получить новые сообщения. Повторяем подключение.",
+            ),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
         }
       }
     };
 
-    pollNotifications();
+    void pollNotifications();
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [chatId, apiUrl, idInstance, apiTokenInstance]);
 
-  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleOpenChat = async () => {
+    const trimmedApiUrl = apiUrl.trim();
+    const trimmedIdInstance = idInstance.trim();
+    const trimmedToken = apiTokenInstance.trim();
+    const trimmedUsername = username.trim();
 
-    if (!apiUrl || !idInstance || !apiTokenInstance || !username) {
+    if (
+      !trimmedApiUrl ||
+      !trimmedIdInstance ||
+      !trimmedToken ||
+      !trimmedUsername
+    ) {
       return;
     }
+
+    const normalizedUsername = trimmedUsername.startsWith("@")
+      ? trimmedUsername
+      : `@${trimmedUsername}`;
+
+    setIsConnecting(true);
+    setAuthError(null);
 
     try {
       const result = await checkAccount({
-        apiUrl: apiUrl.trim(),
-        idInstance: idInstance.trim(),
-        apiTokenInstance: apiTokenInstance.trim(),
-        username: username.trim(),
+        apiUrl: trimmedApiUrl,
+        idInstance: trimmedIdInstance,
+        apiTokenInstance: trimmedToken,
+        username: normalizedUsername,
       });
 
-      console.log(result);
-
-      if (!result.exist) {
-        console.log("Пользователь не найден");
+      if (!result.exist || !result.chatId) {
+        setAuthError("Пользователь Telegram не найден.");
         return;
       }
 
+      setUsername(normalizedUsername);
+      setMessages([]);
       setChatId(result.chatId);
     } catch (error) {
-      console.error(error);
+      setAuthError(
+        getErrorMessage(error, "Не удалось подключиться к GREEN-API."),
+      );
+    } finally {
+      setIsConnecting(false);
     }
   };
 
-  const handleSendMessage = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSendMessage = async () => {
+    const text = message.trim();
 
-    if (!chatId || !message.trim()) {
+    if (!chatId || !text || isSending) {
       return;
     }
 
-    try {
-      const text = message.trim();
+    setIsSending(true);
+    setChatError(null);
 
+    try {
       const result = await sendMessage({
         apiUrl: apiUrl.trim(),
         idInstance: idInstance.trim(),
@@ -157,106 +201,53 @@ function App() {
 
       setMessage("");
     } catch (error) {
-      console.error(error);
+      setChatError(
+        getErrorMessage(error, "Не удалось отправить сообщение."),
+      );
+    } finally {
+      setIsSending(false);
     }
+  };
+
+  const handleChangeChat = () => {
+    setChatId("");
+    setUsername("");
+    setMessage("");
+    setMessages([]);
+    setAuthError(null);
+    setChatError(null);
+    setPollingError(null);
   };
 
   return (
     <main className="page">
       <section className={chatId ? "chat-card" : "auth-card"}>
         {!chatId ? (
-          <>
-            <div className="auth-header">
-              <span className="logo">G</span>
-
-              <div>
-                <h1>GREEN-API Chat</h1>
-                <p>Подключите аккаунт и откройте чат в Telegram</p>
-              </div>
-            </div>
-
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <div className="field">
-                <label htmlFor="idInstance">ID Instance</label>
-                <input
-                  type="text"
-                  id="idInstance"
-                  value={idInstance}
-                  onChange={(event) => setIdInstance(event.target.value)}
-                  placeholder="Введите ID Instance"
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="apiTokenInstance">API Token Instance</label>
-                <input
-                  type="password"
-                  id="apiTokenInstance"
-                  value={apiTokenInstance}
-                  onChange={(event) => setApiTokenInstance(event.target.value)}
-                  placeholder="Введите API Token Instance"
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="username">Telegram username</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                  placeholder="@username"
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="apiUrl">API URL</label>
-                <input
-                  type="text"
-                  id="apiUrl"
-                  value={apiUrl}
-                  onChange={(event) => setApiUrl(event.target.value)}
-                  placeholder="https://xxxx.api.green-api.com"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={
-                  !apiUrl || !idInstance || !apiTokenInstance || !username
-                }
-              >
-                Открыть чат
-              </button>
-            </form>
-          </>
+          <AuthForm
+            idInstance={idInstance}
+            apiTokenInstance={apiTokenInstance}
+            username={username}
+            apiUrl={apiUrl}
+            isConnecting={isConnecting}
+            error={authError}
+            onIdInstanceChange={setIdInstance}
+            onApiTokenInstanceChange={setApiTokenInstance}
+            onUsernameChange={setUsername}
+            onApiUrlChange={setApiUrl}
+            onSubmit={handleOpenChat}
+          />
         ) : (
-          <div className="chat">
-            <div className="chat-header">
-              <strong>{username}</strong>
-            </div>
-
-            <div className="messages">
-              {messages.map((item) => (
-                <div key={item.id} className={`message ${item.direction}`}>
-                  {item.text}
-                </div>
-              ))}
-            </div>
-
-            <form className="message-form" onSubmit={handleSendMessage}>
-              <input
-                type="text"
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                placeholder="Сообщение"
-              />
-
-              <button type="submit" disabled={!message.trim()}>
-                Отправить
-              </button>
-            </form>
-          </div>
+          <Chat
+            username={username}
+            messages={messages}
+            message={message}
+            isSending={isSending}
+            error={chatError}
+            pollingError={pollingError}
+            onMessageChange={setMessage}
+            onSend={handleSendMessage}
+            onChangeChat={handleChangeChat}
+          />
         )}
       </section>
     </main>
