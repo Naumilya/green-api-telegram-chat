@@ -2,20 +2,24 @@
 
 Минимальный веб-клиент для обмена текстовыми сообщениями в Telegram через GREEN-API.
 
-Проект выполнен как тестовое задание на позицию Frontend React Developer. Приложение позволяет подключить Telegram-инстанс GREEN-API, открыть чат по `@username`, отправлять сообщения и получать входящие сообщения через HTTP API.
+Проект выполнен как тестовое задание на позицию Frontend React Developer. Приложение позволяет подключить Telegram-инстанс GREEN-API, найти собеседника по `@username`, отправлять текстовые сообщения и получать входящие сообщения через HTTP API.
 
 ## Возможности
 
 - подключение по `apiUrl`, `idInstance` и `apiTokenInstance`;
-- поиск Telegram-пользователя по `@username` через `CheckAccount`;
+- валидация параметров подключения до запроса к API;
+- поиск Telegram-пользователя через `CheckAccount`;
 - отправка текстовых сообщений через `SendMessage`;
 - получение входящих сообщений через `ReceiveNotification`;
 - подтверждение обработки уведомлений через `DeleteNotification`;
-- автоматическая прокрутка к новым сообщениям;
+- long polling с отменой активного запроса при смене чата;
 - состояния загрузки и пользовательские сообщения об ошибках;
-- возможность сменить активный чат без перезагрузки страницы;
-- простой адаптивный интерфейс;
-- данные доступа не сохраняются в `localStorage` и не хранятся в репозитории.
+- автоматическая прокрутка к новым сообщениям;
+- отправка по Enter и перенос строки по Shift+Enter;
+- счётчик длины сообщения и лимит 4096 символов;
+- возможность сменить чат без перезагрузки страницы;
+- адаптивный интерфейс;
+- credentials не сохраняются в `localStorage` и не хранятся в репозитории.
 
 ## Стек
 
@@ -24,11 +28,12 @@
 - Vite
 - CSS
 - Oxlint
+- Node.js Test Runner
 - GREEN-API Telegram HTTP API
 
 ## Запуск локально
 
-Требуются Node.js и npm.
+Для проекта рекомендуется Node.js 24+ и npm.
 
 ```bash
 git clone https://github.com/Naumilya/green-api-telegram-chat.git
@@ -39,18 +44,59 @@ npm run dev
 
 После запуска Vite выведет локальный адрес приложения в терминале.
 
-Для production-сборки:
+Production-сборка:
 
 ```bash
 npm run build
 npm run preview
 ```
 
-Проверка линтером:
+## Проверки
+
+Линтер:
 
 ```bash
 npm run lint
 ```
+
+Тесты:
+
+```bash
+npm test
+```
+
+Тесты с coverage:
+
+```bash
+npm run test:coverage
+```
+
+Полная локальная проверка:
+
+```bash
+npm run check
+```
+
+Команда `check` последовательно запускает линтер, тесты и production-сборку.
+
+В репозитории также настроен GitHub Actions workflow, который выполняет те же проверки для push в `main` и pull request.
+
+## Что покрыто тестами
+
+Тесты написаны без дополнительного test framework и используют встроенный Node.js Test Runner.
+
+Проверяется:
+
+- нормализация Telegram username;
+- валидация API URL;
+- валидация ID Instance;
+- обязательность API Token Instance;
+- формат Telegram username;
+- формирование URL для `CheckAccount`;
+- тело запроса `SendMessage`;
+- пустой ответ `ReceiveNotification`;
+- удаление уведомления через `DeleteNotification`;
+- обработка HTTP-ошибок GREEN-API.
 
 ## Настройка GREEN-API
 
@@ -61,7 +107,7 @@ npm run lint
 - **API URL** — адрес API вашего инстанса;
 - **ID Instance** — идентификатор инстанса;
 - **API Token Instance** — токен доступа;
-- **Telegram username** — имя пользователя в формате `@username`.
+- **Telegram username** — имя пользователя собеседника.
 
 Для получения сообщений через HTTP API у инстанса должен быть пустой `webhookUrl`, а получение входящих уведомлений должно быть включено.
 
@@ -93,13 +139,19 @@ src/
 │   ├── Chat.tsx
 │   ├── MessageInput.tsx
 │   └── MessageList.tsx
+├── utils/
+│   └── validation.ts
 ├── App.tsx
 ├── App.css
 ├── main.tsx
 └── types.ts
+
+tests/
+├── greenApi.test.ts
+└── validation.test.ts
 ```
 
-`App.tsx` отвечает за состояние приложения и orchestration API-запросов. UI разбит на небольшие компоненты, а работа с GREEN-API вынесена в отдельный модуль.
+`App.tsx` отвечает за состояние приложения и orchestration API-запросов. UI разбит на небольшие компоненты, работа с GREEN-API вынесена в отдельный модуль, а правила валидации — в отдельный pure-модуль.
 
 ## Ограничения
 
