@@ -886,3 +886,527 @@ summary:focus-visible {
     margin: 0;
   }
 }
+
+
+/* Restored Telechat chat layout */
+.chat-root {
+  min-height: 100vh;
+  padding: 0 !important;
+  display: block !important;
+  background: #ffffff !important;
+}
+
+.telechat-shell {
+  width: 100%;
+  height: 100vh;
+  min-height: 620px;
+  display: grid;
+  grid-template-columns: 328px minmax(0, 1fr);
+  overflow: hidden;
+  background: #ffffff;
+  color: #162033;
+}
+
+.telechat-sidebar {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #d9e4ea;
+  background: #ffffff;
+}
+
+.telechat-sidebar-header {
+  height: 68px;
+  flex: 0 0 68px;
+  padding: 0 17px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e1e9ee;
+}
+
+.telechat-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.telechat-logo-mark {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #43b6eb, #1c8fd1);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  transform: rotate(-14deg);
+  box-shadow: 0 8px 18px rgba(32, 149, 207, 0.18);
+}
+
+.telechat-logo strong {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.telechat-logout {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #7b91a0;
+  font-size: 22px;
+}
+
+.telechat-logout:hover {
+  background: #f0f6f9;
+  color: #2d8fc4;
+}
+
+.telechat-sidebar-body {
+  min-height: 0;
+  flex: 1;
+  padding: 16px 9px;
+}
+
+.telechat-search-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.telechat-search {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 13px;
+  background: #f1f5f8;
+  color: #8395a4;
+}
+
+.telechat-search span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.telechat-search input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #536779;
+  font-size: 12px;
+}
+
+.telechat-search input::placeholder {
+  color: #8da0ae;
+}
+
+.telechat-new-chat {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 11px;
+  background: #2b98d2;
+  color: #ffffff;
+  font-size: 27px;
+  font-weight: 300;
+  line-height: 1;
+  box-shadow: 0 5px 12px rgba(43, 152, 210, 0.18);
+}
+
+.telechat-new-chat:hover {
+  background: #238bc2;
+}
+
+.telechat-chat-item {
+  width: 100%;
+  min-height: 67px;
+  padding: 9px 11px;
+  display: grid;
+  grid-template-columns: 45px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  text-align: left;
+  color: inherit;
+}
+
+.telechat-chat-item.active {
+  background: #e9f5fb;
+}
+
+.telechat-chat-avatar,
+.telechat-user-avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #57b9e3, #38a5d3);
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.telechat-chat-avatar {
+  width: 45px;
+  height: 45px;
+  font-size: 13px;
+}
+
+.telechat-chat-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.telechat-chat-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.telechat-chat-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #82919f;
+  font-size: 10px;
+}
+
+.telechat-chat-time {
+  align-self: start;
+  padding-top: 4px;
+  color: #9ba8b2;
+  font-size: 9px;
+}
+
+.telechat-sidebar-footer {
+  min-height: 54px;
+  flex: 0 0 54px;
+  padding: 0 17px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #dfe7ec;
+  color: #718899;
+  font-size: 9px;
+}
+
+.telechat-wifi {
+  color: #708a9b;
+  font-size: 18px;
+}
+
+.telechat-online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ac77a;
+  box-shadow: 0 0 0 4px rgba(74, 199, 122, 0.1);
+}
+
+.telechat-main {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #eaf7fd;
+}
+
+.telechat-chat-header {
+  height: 68px;
+  flex: 0 0 68px;
+  padding: 0 19px 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid #dce8ee;
+  background: #ffffff;
+}
+
+.telechat-user {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.telechat-user-avatar {
+  width: 39px;
+  height: 39px;
+  font-size: 11px;
+}
+
+.telechat-user-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.telechat-user-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #1e2938;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.telechat-user-copy span {
+  color: #8d9aa6;
+  font-size: 9px;
+}
+
+.telechat-chat-badge {
+  min-height: 29px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: #f4f7f8;
+  color: #84939f;
+  font-size: 9px;
+}
+
+.telechat-messages {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  padding: 78px 98px 28px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(98, 180, 218, 0.28) 1px, transparent 1.2px),
+    #e9f6fc;
+  background-size: 24px 24px;
+  scroll-behavior: smooth;
+}
+
+.telechat-date-chip {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #7f9ca9;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.telechat-empty {
+  margin: auto;
+  padding: 13px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #728594;
+  text-align: center;
+  box-shadow: 0 8px 22px rgba(68, 126, 151, 0.06);
+}
+
+.telechat-empty strong {
+  color: #496272;
+  font-size: 12px;
+}
+
+.telechat-empty span {
+  font-size: 10px;
+}
+
+.telechat-message {
+  width: fit-content;
+  max-width: min(68%, 560px);
+  padding: 9px 12px 7px;
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  border-radius: 13px;
+  box-shadow: 0 2px 7px rgba(51, 105, 131, 0.05);
+  color: #21313e;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.telechat-message.incoming {
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+  background: #ffffff;
+}
+
+.telechat-message.outgoing {
+  align-self: flex-end;
+  border-bottom-right-radius: 5px;
+  background: #daf6bf;
+}
+
+.telechat-message-text {
+  min-width: 0;
+}
+
+.telechat-message-meta {
+  flex: 0 0 auto;
+  color: #789083;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.telechat-message.incoming .telechat-message-meta {
+  color: #98a6af;
+}
+
+.telechat-status {
+  margin: 10px 16px 0;
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.telechat-status.warning {
+  border: 1px solid #ead7a9;
+  background: #fff9e9;
+  color: #8a641a;
+}
+
+.telechat-status.error {
+  border: 1px solid #efc8c4;
+  background: #fff5f4;
+  color: #a33c33;
+}
+
+.telechat-composer {
+  min-height: 72px;
+  flex: 0 0 auto;
+  padding: 13px 62px 13px 65px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #dce8ee;
+  background: #ffffff;
+}
+
+.telechat-composer textarea {
+  width: 100%;
+  height: 46px;
+  min-height: 46px;
+  max-height: 110px;
+  padding: 13px 16px;
+  resize: none;
+  border: 1.5px solid #44aee2;
+  border-radius: 15px;
+  background: #ffffff;
+  color: #233342;
+  outline: none;
+  line-height: 1.35;
+  box-shadow: 0 0 0 4px rgba(68, 174, 226, 0.08);
+}
+
+.telechat-composer textarea::placeholder {
+  color: #a1aeba;
+}
+
+.telechat-composer textarea:focus {
+  border-color: #279bd5;
+  box-shadow: 0 0 0 4px rgba(39, 155, 213, 0.1);
+}
+
+.telechat-send {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 14px;
+  background: #b8c8d1;
+  color: #ffffff;
+  font-size: 19px;
+  transition:
+    background 0.16s ease,
+    transform 0.12s ease;
+}
+
+.telechat-send:hover:not(:disabled) {
+  background: #2c9bd5;
+}
+
+.telechat-send:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.telechat-send:disabled {
+  background: #c1ced5;
+  opacity: 0.9;
+}
+
+@media (max-width: 900px) {
+  .telechat-shell {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+
+  .telechat-messages {
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+
+  .telechat-composer {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+}
+
+@media (max-width: 680px) {
+  .telechat-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .telechat-sidebar {
+    display: none;
+  }
+
+  .telechat-messages {
+    padding: 70px 14px 20px;
+  }
+
+  .telechat-message {
+    max-width: 84%;
+  }
+
+  .telechat-composer {
+    padding: 11px 12px;
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+
+  .telechat-send {
+    width: 44px;
+    height: 44px;
+  }
+}
