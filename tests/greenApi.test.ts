@@ -54,6 +54,35 @@ describe("GREEN-API client", () => {
     assert.equal(result.chatId, "123456789@c.us");
   });
 
+  it("checkAccount can send phoneNumber", async () => {
+    let body: unknown;
+
+    globalThis.fetch = async (_input, init) => {
+      body = JSON.parse(String(init?.body));
+
+      return new Response(
+        JSON.stringify({
+          exist: true,
+          chatId: "79991234567@c.us",
+          phoneNumber: 79991234567,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    };
+
+    await checkAccount({
+      apiUrl: "https://example.green-api.com",
+      idInstance: "123",
+      apiTokenInstance: "token",
+      phoneNumber: 79991234567,
+    });
+
+    assert.deepEqual(body, { phoneNumber: 79991234567 });
+  });
+
   it("sendMessage sends the active chat and text", async () => {
     let body: unknown;
 
