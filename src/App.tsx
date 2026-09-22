@@ -9,6 +9,11 @@ import { AuthForm } from "./components/AuthForm";
 import { Chat } from "./components/Chat";
 import type { Message } from "./types";
 import {
+  appendUniqueMessage,
+  formatMessageTime,
+  getIncomingText,
+} from "./utils/messages";
+import {
   EMPTY_CONNECTION_FORM,
   getRecipientLabel,
   parseRecipient,
@@ -77,33 +82,17 @@ function App() {
 
           const { receiptId, body } = notification;
 
-          if (
-            body.typeWebhook === "incomingMessageReceived" &&
-            body.senderData?.chatId === chatId &&
-            body.messageData?.typeMessage === "textMessage"
-          ) {
-            const text = body.messageData.textMessageData?.textMessage;
+          const incomingText = getIncomingText(body, chatId);
 
-            if (text) {
-              setMessages((current) => {
-                if (current.some((item) => item.id === body.idMessage)) {
-                  return current;
-                }
-
-                return [
-                  ...current,
-                  {
-                    id: body.idMessage,
-                    text,
-                    direction: "incoming",
-                    time: new Intl.DateTimeFormat("ru-RU", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }).format(new Date()),
-                  },
-                ];
-              });
-            }
+          if (incomingText) {
+            setMessages((current) =>
+              appendUniqueMessage(current, {
+                id: body.idMessage,
+                text: incomingText,
+                direction: "incoming",
+                time: formatMessageTime(),
+              }),
+            );
           }
 
           await deleteNotification({
@@ -224,10 +213,7 @@ function App() {
           id: result.idMessage,
           text,
           direction: "outgoing",
-          time: new Intl.DateTimeFormat("ru-RU", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }).format(new Date()),
+          time: formatMessageTime(),
         },
       ]);
 
