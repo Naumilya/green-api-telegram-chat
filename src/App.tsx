@@ -37,6 +37,7 @@ function App() {
   );
   const [chatId, setChatId] = useState("");
   const [activeRecipient, setActiveRecipient] = useState("");
+  const [activeRecipientMeta, setActiveRecipientMeta] = useState("Telegram");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -175,7 +176,13 @@ function App() {
         return;
       }
 
-      setActiveRecipient(getRecipientLabel(connection.recipient));
+      const recipientLabel = getRecipientLabel(connection.recipient);
+      const recipientMeta = result.phoneNumber
+        ? `+${result.phoneNumber}`
+        : "Telegram";
+
+      setActiveRecipient(recipientLabel);
+      setActiveRecipientMeta(recipientMeta);
       setMessages([]);
       setChatError(null);
       setPollingError(null);
@@ -237,6 +244,7 @@ function App() {
   const handleChangeChat = () => {
     setChatId("");
     setActiveRecipient("");
+    setActiveRecipientMeta("Telegram");
     setMessage("");
     setMessages([]);
     setAuthError(null);
@@ -266,6 +274,7 @@ function App() {
     <main className="app-root chat-root">
       <Chat
         recipient={activeRecipient}
+        recipientMeta={activeRecipientMeta}
         messages={messages}
         message={message}
         isSending={isSending}
