@@ -66,7 +66,7 @@ export function getRecipientLabel(value: string) {
     return value.trim();
   }
 
-  if ("username" in target) {
+  if (target.username !== undefined) {
     return target.username;
   }
 
