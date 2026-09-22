@@ -2,7 +2,7 @@ export type ConnectionFormValues = {
   apiUrl: string;
   idInstance: string;
   apiTokenInstance: string;
-  username: string;
+  recipient: string;
 };
 
 export type ConnectionField = keyof ConnectionFormValues;
@@ -11,11 +11,15 @@ export type ConnectionFormErrors = Partial<
   Record<ConnectionField, string>
 >;
 
+export type RecipientTarget =
+  | { username: string; phoneNumber?: never }
+  | { phoneNumber: number; username?: never };
+
 export const EMPTY_CONNECTION_FORM: ConnectionFormValues = {
-  apiUrl: "",
+  apiUrl: "https://api.green-api.com",
   idInstance: "",
   apiTokenInstance: "",
-  username: "",
+  recipient: "",
 };
 
 export function normalizeTelegramUsername(value: string) {
@@ -28,6 +32,47 @@ export function normalizeTelegramUsername(value: string) {
   return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
 }
 
+export function parseRecipient(value: string): RecipientTarget | null {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  if (trimmed.startsWith("@") || /[A-Za-z_]/.test(trimmed)) {
+    const username = normalizeTelegramUsername(trimmed);
+    const usernameWithoutAt = username.slice(1);
+
+    if (!/^[A-Za-z0-9_]{5,32}$/.test(usernameWithoutAt)) {
+      return null;
+    }
+
+    return { username };
+  }
+
+  const digits = trimmed.replace(/\D/g, "");
+
+  if (!/^\d{7,15}$/.test(digits)) {
+    return null;
+  }
+
+  return { phoneNumber: Number(digits) };
+}
+
+export function getRecipientLabel(value: string) {
+  const target = parseRecipient(value);
+
+  if (!target) {
+    return value.trim();
+  }
+
+  if ("username" in target) {
+    return target.username;
+  }
+
+  return `+${target.phoneNumber}`;
+}
+
 export function validateConnectionForm(
   values: ConnectionFormValues,
 ): ConnectionFormErrors {
@@ -35,8 +80,6 @@ export function validateConnectionForm(
   const apiUrl = values.apiUrl.trim();
   const idInstance = values.idInstance.trim();
   const apiTokenInstance = values.apiTokenInstance.trim();
-  const username = normalizeTelegramUsername(values.username);
-  const usernameWithoutAt = username.slice(1);
 
   if (!apiUrl) {
     errors.apiUrl = "Укажите API URL инстанса.";
@@ -48,25 +91,26 @@ export function validateConnectionForm(
         errors.apiUrl = "API URL должен начинаться с https://";
       }
     } catch {
-      errors.apiUrl = "Введите корректный URL, например https://xxxx.api.green-api.com";
+      errors.apiUrl =
+        "Введите корректный URL, например https://api.green-api.com";
     }
   }
 
   if (!idInstance) {
-    errors.idInstance = "Укажите ID Instance.";
+    errors.idInstance = "Укажите idInstance.";
   } else if (!/^\d+$/.test(idInstance)) {
-    errors.idInstance = "ID Instance должен содержать только цифры.";
+    errors.idInstance = "idInstance должен содержать только цифры.";
   }
 
   if (!apiTokenInstance) {
-    errors.apiTokenInstance = "Укажите API Token Instance.";
+    errors.apiTokenInstance = "Укажите apiTokenInstance.";
   }
 
-  if (!username) {
-    errors.username = "Укажите Telegram username.";
-  } else if (!/^[A-Za-z0-9_]{5,32}$/.test(usernameWithoutAt)) {
-    errors.username =
-      "Username должен содержать 5–32 латинских символа, цифры или _.";
+  if (!values.recipient.trim()) {
+    errors.recipient = "Укажите номер телефона или Telegram username.";
+  } else if (!parseRecipient(values.recipient)) {
+    errors.recipient =
+      "Введите телефон в международном формате или username вида @username.";
   }
 
   return errors;
