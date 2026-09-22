@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  getRecipientLabel,
   hasConnectionFormErrors,
   normalizeTelegramUsername,
+  parseRecipient,
   validateConnectionForm,
 } from "../src/utils/validation.ts";
 
@@ -14,25 +16,52 @@ describe("normalizeTelegramUsername", () => {
   it("keeps an existing @ and trims spaces", () => {
     assert.equal(normalizeTelegramUsername("  @naumilya  "), "@naumilya");
   });
+});
 
-  it("returns an empty string for empty input", () => {
-    assert.equal(normalizeTelegramUsername("   "), "");
+describe("parseRecipient", () => {
+  it("parses a Telegram username", () => {
+    assert.deepEqual(parseRecipient("naumilya"), { username: "@naumilya" });
+  });
+
+  it("parses a phone number and removes formatting", () => {
+    assert.deepEqual(parseRecipient("+7 (999) 123-45-67"), {
+      phoneNumber: 79991234567,
+    });
+  });
+
+  it("returns null for an invalid recipient", () => {
+    assert.equal(parseRecipient("@ab"), null);
+  });
+
+  it("returns a display label for recipient", () => {
+    assert.equal(getRecipientLabel("79991234567"), "+79991234567");
+    assert.equal(getRecipientLabel("naumilya"), "@naumilya");
   });
 });
 
 describe("validateConnectionForm", () => {
   const validValues = {
-    apiUrl: "https://7103.api.green-api.com",
+    apiUrl: "https://api.green-api.com",
     idInstance: "1234567890",
     apiTokenInstance: "test-token",
-    username: "@naumilya",
+    recipient: "@naumilya",
   };
 
-  it("accepts a valid form", () => {
+  it("accepts a valid username recipient", () => {
     const errors = validateConnectionForm(validValues);
 
     assert.deepEqual(errors, {});
     assert.equal(hasConnectionFormErrors(errors), false);
+  });
+
+  it("accepts a valid phone recipient", () => {
+    assert.deepEqual(
+      validateConnectionForm({
+        ...validValues,
+        recipient: "+7 999 123-45-67",
+      }),
+      {},
+    );
   });
 
   it("rejects an insecure or malformed API URL", () => {
@@ -47,10 +76,10 @@ describe("validateConnectionForm", () => {
     );
   });
 
-  it("requires a numeric ID Instance", () => {
+  it("requires a numeric idInstance", () => {
     assert.equal(
       validateConnectionForm({ ...validValues, idInstance: "12ab" }).idInstance,
-      "ID Instance должен содержать только цифры.",
+      "idInstance должен содержать только цифры.",
     );
   });
 
@@ -58,18 +87,13 @@ describe("validateConnectionForm", () => {
     assert.equal(
       validateConnectionForm({ ...validValues, apiTokenInstance: " " })
         .apiTokenInstance,
-      "Укажите API Token Instance.",
+      "Укажите apiTokenInstance.",
     );
   });
 
-  it("validates Telegram username format", () => {
+  it("validates recipient format", () => {
     assert.ok(
-      validateConnectionForm({ ...validValues, username: "@ab" }).username,
-    );
-
-    assert.deepEqual(
-      validateConnectionForm({ ...validValues, username: "naumilya" }),
-      {},
+      validateConnectionForm({ ...validValues, recipient: "@ab" }).recipient,
     );
   });
 });
