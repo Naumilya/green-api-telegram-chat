@@ -13,19 +13,28 @@ export function MessageList({ messages }: MessageListProps) {
   }, [messages]);
 
   return (
-    <div className="messages" aria-live="polite" aria-label="Сообщения">
+    <div className="telechat-messages" aria-live="polite" aria-label="Сообщения">
+      <span className="telechat-date-chip">Сегодня</span>
+
       {messages.length === 0 ? (
-        <div className="empty-messages">
-          <span className="empty-messages-icon" aria-hidden="true">
-            ↗
-          </span>
+        <div className="telechat-empty">
           <strong>Чат открыт</strong>
           <span>Отправьте первое текстовое сообщение.</span>
         </div>
       ) : (
         messages.map((item) => (
-          <div key={item.id} className={`message ${item.direction}`}>
-            {item.text}
+          <div
+            key={item.id}
+            className={`telechat-message ${item.direction}`}
+          >
+            <span className="telechat-message-text">{item.text}</span>
+
+            <span className="telechat-message-meta">
+              {item.time ?? ""}
+              {item.direction === "outgoing" ? (
+                <span aria-hidden="true"> ✓</span>
+              ) : null}
+            </span>
           </div>
         ))
       )}
