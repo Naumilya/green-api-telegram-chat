@@ -11,14 +11,31 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-
   background: #f4f6f8;
   color: #1f2937;
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.1s,
+    border-color 0.2s;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 .page {
@@ -29,14 +46,23 @@ input {
   padding: 24px;
 }
 
-.auth-card {
+.auth-card,
+.chat-card {
   width: 100%;
-  max-width: 440px;
-  padding: 32px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 20px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+}
+
+.auth-card {
+  max-width: 440px;
+  padding: 32px;
+}
+
+.chat-card {
+  max-width: 760px;
+  padding: 24px;
 }
 
 .auth-header {
@@ -53,11 +79,9 @@ input {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-
   border-radius: 14px;
   background: #22c55e;
   color: white;
-
   font-size: 24px;
   font-weight: 700;
 }
@@ -91,104 +115,120 @@ input {
   font-weight: 600;
 }
 
-.field input {
+.field input,
+.message-form textarea {
   width: 100%;
-  height: 46px;
-  padding: 0 14px;
-
   border: 1px solid #d1d5db;
   border-radius: 10px;
   outline: none;
-
   background: white;
-
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
 }
 
-.field input::placeholder {
+.field input {
+  height: 46px;
+  padding: 0 14px;
+}
+
+.field input::placeholder,
+.message-form textarea::placeholder {
   color: #9ca3af;
 }
 
-.field input:focus {
+.field input:focus,
+.message-form textarea:focus {
   border-color: #22c55e;
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
 }
 
-button {
-  height: 46px;
-  margin-top: 4px;
-
-  border: none;
+.primary-button {
+  min-height: 46px;
+  padding: 0 18px;
   border-radius: 10px;
-
   background: #22c55e;
   color: white;
-
   font-weight: 600;
-  cursor: pointer;
-
-  transition:
-    background 0.2s,
-    transform 0.1s;
 }
 
-button:hover:not(:disabled) {
+.auth-form .primary-button {
+  margin-top: 4px;
+}
+
+.primary-button:hover:not(:disabled) {
   background: #16a34a;
 }
 
-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-button:disabled {
+.primary-button:disabled {
   background: #d1d5db;
-  cursor: not-allowed;
 }
 
-.message-form {
-  margin-top: 24px;
-  display: flex;
-  gap: 10px;
-}
-
-.message-form input {
-  flex: 1;
-  height: 46px;
-  padding: 0 14px;
-
-  border: 1px solid #d1d5db;
+.status-error,
+.status-warning {
+  margin: 0;
+  padding: 10px 12px;
   border-radius: 10px;
-  outline: none;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
-.message-form input:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+.status-error {
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
-.message-form button {
-  padding: 0 18px;
+.status-warning {
+  margin-top: 14px;
+  background: #fffbeb;
+  color: #92400e;
 }
 
 .chat {
   width: 100%;
 }
 
-.chat-card {
-  width: 100%;
-  max-width: 760px;
-  padding: 24px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 20px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
-}
-
 .chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.chat-header > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-header strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-label {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.secondary-button {
+  min-height: 36px;
+  flex-shrink: 0;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #374151;
+  font-weight: 600;
+}
+
+.secondary-button:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
 }
 
 .messages {
@@ -196,10 +236,16 @@ button:disabled {
   max-height: 450px;
   padding: 20px 0;
   overflow-y: auto;
-
   display: flex;
   flex-direction: column;
   gap: 10px;
+  scroll-behavior: smooth;
+}
+
+.empty-messages {
+  margin: auto;
+  color: #9ca3af;
+  font-size: 14px;
 }
 
 .message {
@@ -207,6 +253,8 @@ button:disabled {
   padding: 10px 14px;
   border-radius: 14px;
   line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .message.outgoing {
@@ -221,12 +269,66 @@ button:disabled {
   color: #111827;
 }
 
+.chat-error {
+  margin-bottom: 12px;
+}
+
+.message-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.message-form textarea {
+  min-height: 46px;
+  max-height: 132px;
+  padding: 11px 14px;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.send-button {
+  flex-shrink: 0;
+}
+
 @media (max-width: 520px) {
   .page {
-    padding: 16px;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .auth-card,
+  .chat-card {
+    border-radius: 16px;
   }
 
   .auth-card {
     padding: 24px;
+  }
+
+  .chat-card {
+    padding: 16px;
+  }
+
+  .chat-header {
+    align-items: flex-start;
+  }
+
+  .messages {
+    min-height: 55vh;
+    max-height: 60vh;
+  }
+
+  .message {
+    max-width: 88%;
+  }
+
+  .message-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .send-button {
+    width: 100%;
   }
 }
