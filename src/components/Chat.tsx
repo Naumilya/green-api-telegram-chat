@@ -25,31 +25,48 @@ export function Chat({
   onSend,
   onChangeChat,
 }: ChatProps) {
+  const avatarLetter = username.replace(/^@/, "").charAt(0).toUpperCase() || "T";
+
   return (
     <div className="chat">
       <div className="chat-header">
-        <div>
-          <span className="chat-label">Telegram</span>
-          <strong>{username}</strong>
+        <div className="chat-user">
+          <span className="chat-avatar" aria-hidden="true">
+            {avatarLetter}
+          </span>
+
+          <div className="chat-user-copy">
+            <strong>{username}</strong>
+            <span className="connection-status">
+              <span className="status-dot" aria-hidden="true" />
+              GREEN-API подключён
+            </span>
+          </div>
         </div>
 
-        <button className="secondary-button" type="button" onClick={onChangeChat}>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={onChangeChat}
+        >
           Сменить чат
         </button>
       </div>
 
       {pollingError ? (
-        <p className="status-warning" role="status">
-          {pollingError}
-        </p>
+        <div className="status-warning" role="status">
+          <strong>Получение сообщений временно недоступно.</strong>
+          <span>{pollingError}</span>
+        </div>
       ) : null}
 
       <MessageList messages={messages} />
 
       {error ? (
-        <p className="status-error chat-error" role="alert">
-          {error}
-        </p>
+        <div className="status-error chat-error" role="alert">
+          <strong>Сообщение не отправлено.</strong>
+          <span>{error}</span>
+        </div>
       ) : null}
 
       <MessageInput
