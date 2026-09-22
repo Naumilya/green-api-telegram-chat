@@ -10,7 +10,8 @@ import { Chat } from "./components/Chat";
 import type { Message } from "./types";
 import {
   EMPTY_CONNECTION_FORM,
-  normalizeTelegramUsername,
+  getRecipientLabel,
+  parseRecipient,
   type ConnectionField,
   type ConnectionFormValues,
 } from "./utils/validation";
@@ -35,7 +36,7 @@ function App() {
     EMPTY_CONNECTION_FORM,
   );
   const [chatId, setChatId] = useState("");
-  const [activeUsername, setActiveUsername] = useState("");
+  const [activeRecipient, setActiveRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -84,11 +85,7 @@ function App() {
 
             if (text) {
               setMessages((current) => {
-                const alreadyExists = current.some(
-                  (item) => item.id === body.idMessage,
-                );
-
-                if (alreadyExists) {
+                if (current.some((item) => item.id === body.idMessage)) {
                   return current;
                 }
 
@@ -152,39 +149,39 @@ function App() {
   };
 
   const handleOpenChat = async () => {
-    const apiUrl = connection.apiUrl.trim();
-    const idInstance = connection.idInstance.trim();
-    const apiTokenInstance = connection.apiTokenInstance.trim();
-    const username = normalizeTelegramUsername(connection.username);
+    const target = parseRecipient(connection.recipient);
+
+    if (!target) {
+      return;
+    }
 
     setIsConnecting(true);
     setAuthError(null);
 
     try {
       const result = await checkAccount({
-        apiUrl,
-        idInstance,
-        apiTokenInstance,
-        username,
+        apiUrl: connection.apiUrl.trim(),
+        idInstance: connection.idInstance.trim(),
+        apiTokenInstance: connection.apiTokenInstance.trim(),
+        ...target,
       });
 
       if (!result.exist || !result.chatId) {
-        setAuthError("Пользователь Telegram не найден.");
+        setAuthError("Получатель не найден в Telegram.");
         return;
       }
 
-      setConnection((current) => ({
-        ...current,
-        username,
-      }));
-      setActiveUsername(username);
+      setActiveRecipient(getRecipientLabel(connection.recipient));
       setMessages([]);
       setChatError(null);
       setPollingError(null);
       setChatId(result.chatId);
     } catch (error) {
       setAuthError(
-        getErrorMessage(error, "Проверьте параметры инстанса и попробуйте ещё раз."),
+        getErrorMessage(
+          error,
+          "Проверьте параметры GREEN-API и попробуйте ещё раз.",
+        ),
       );
     } finally {
       setIsConnecting(false);
@@ -231,7 +228,7 @@ function App() {
 
   const handleChangeChat = () => {
     setChatId("");
-    setActiveUsername("");
+    setActiveRecipient("");
     setMessage("");
     setMessages([]);
     setAuthError(null);
@@ -239,48 +236,37 @@ function App() {
     setPollingError(null);
     setConnection((current) => ({
       ...current,
-      username: "",
+      recipient: "",
     }));
   };
 
-  return (
-    <main className="page">
-      <div className="page-shell">
-        <div className="brand-bar">
-          <span className="brand-mark" aria-hidden="true">
-            G
-          </span>
-          <span>GREEN-API</span>
-          <span className="brand-divider" aria-hidden="true">
-            /
-          </span>
-          <span className="brand-product">Telegram Chat</span>
-        </div>
+  if (!chatId) {
+    return (
+      <main className="app-root">
+        <AuthForm
+          values={connection}
+          isConnecting={isConnecting}
+          serverError={authError}
+          onChange={handleConnectionChange}
+          onSubmit={handleOpenChat}
+        />
+      </main>
+    );
+  }
 
-        <section className={chatId ? "chat-card" : "auth-card"}>
-          {!chatId ? (
-            <AuthForm
-              values={connection}
-              isConnecting={isConnecting}
-              serverError={authError}
-              onChange={handleConnectionChange}
-              onSubmit={handleOpenChat}
-            />
-          ) : (
-            <Chat
-              username={activeUsername}
-              messages={messages}
-              message={message}
-              isSending={isSending}
-              error={chatError}
-              pollingError={pollingError}
-              onMessageChange={setMessage}
-              onSend={handleSendMessage}
-              onChangeChat={handleChangeChat}
-            />
-          )}
-        </section>
-      </div>
+  return (
+    <main className="app-root chat-root">
+      <Chat
+        recipient={activeRecipient}
+        messages={messages}
+        message={message}
+        isSending={isSending}
+        error={chatError}
+        pollingError={pollingError}
+        onMessageChange={setMessage}
+        onSend={handleSendMessage}
+        onChangeChat={handleChangeChat}
+      />
     </main>
   );
 }
